@@ -1,0 +1,21 @@
+{
+	"name": "ihsw/toxiyproxy-php-client",
+	"description": "Php client for shopify/toxiproxy",
+	"license": "MIT",
+	"keywords": ["toxiproxy", "php", "client"],
+	"authors": [
+		{
+			"name": "Adrian Parker",
+			"email": "ihsw.aparker@gmail.com"
+		}
+	],
+	"require": {},
+	"require-dev": {
+		"phpunit/phpunit": "4.0.*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Ihsw\\Toxiproxy\\": "src"
+		}
+	}
+}
