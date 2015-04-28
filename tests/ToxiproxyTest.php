@@ -1,12 +1,12 @@
 <?php
 
-use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Client as ToxiproxyClient;
 
-class ToxiproxyTest extends \PHPUnit_Framework_TestCase
+class ToxiproxyClientTest extends \PHPUnit_Framework_TestCase
 {
-    public function testHasDerp()
+    public function testConstruct()
     {
-        $toxiproxy = new Toxiproxy();
-        $this->assertTrue($toxiproxy->hasDerp(true), "Has derp");
+        $client = new ToxiproxyClient("blah", "blah");
+        $this->assertTrue(!is_null($client->getResponse()), "Client response was null");
     }
 }
