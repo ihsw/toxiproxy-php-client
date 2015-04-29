@@ -3,7 +3,8 @@
 use GuzzleHttp\Client as HttpClient,
     GuzzleHttp\Exception\ClientException as HttpClientException;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException;
+    Ihsw\Toxiproxy\Exception\NotFoundException,
+    Ihsw\Toxiproxy\Proxy;
 
 class Toxiproxy implements \ArrayAccess
 {
@@ -79,13 +80,14 @@ class Toxiproxy implements \ArrayAccess
     public function create($name, $upstream, $listen)
     {
         try {
-            return $this->httpClient->post("/proxies", [
+            $response = $this->httpClient->post("/proxies", [
                 "body" => json_encode([
                     "name" => $name,
                     "upstream" => $upstream,
                     "listen" => $listen
                 ])
             ]);
+            return new Proxy($this, json_decode($response->getBody(), true), $response);
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
@@ -94,7 +96,8 @@ class Toxiproxy implements \ArrayAccess
     public function get($name)
     {
         try {
-            return $this->httpClient->get(sprintf("/proxies/%s", $name));
+            $response = $this->httpClient->get(sprintf("/proxies/%s", $name));
+            return new Proxy($this, json_decode($response->getBody(), true), $response);
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }

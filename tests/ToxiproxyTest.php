@@ -4,7 +4,8 @@ use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Client,
     Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException;
+    Ihsw\Toxiproxy\Exception\NotFoundException,
+    Ihsw\Toxiproxy\Proxy;
 
 class ToxiproxyTest extends \PHPUnit_Framework_TestCase
 {
@@ -39,21 +40,22 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     public function testCreate($callback = null)
     {
         $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback){
-            $response = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
+            $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
+            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
-                $response->getStatusCode(),
+                $proxy->getHttpResponse()->getStatusCode(),
                 Toxiproxy::CREATED,
                 sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
                     self::TEST_NAME,
                     self::TEST_UPSTREAM,
                     self::TEST_NAME,
-                    $response->getBody()
+                    $proxy->getHttpResponse()->getBody()
                 )
             );
 
             if (!is_null($callback))
             {
-                $callback($toxiproxy, json_decode($response->getBody(), true));
+                $callback($toxiproxy, $proxy);
             }
         });
     }
@@ -62,15 +64,16 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     {
         $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
             $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
-            $response = $toxiproxy[self::TEST_NAME];
+            $proxy = $toxiproxy[self::TEST_NAME];
+            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
-                $response->getStatusCode(),
+                $proxy->getHttpResponse()->getStatusCode(),
                 Toxiproxy::OK,
                 sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
                     self::TEST_NAME,
                     self::TEST_UPSTREAM,
                     self::TEST_NAME,
-                    $response->getBody()
+                    $proxy->getHttpResponse()->getBody()
                 )
             );
         });
@@ -89,11 +92,12 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
-            $response = $toxiproxy->get($proxy["name"]);
+            $proxy = $toxiproxy->get($proxy["name"]);
+            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
-                $response->getStatusCode(),
+                $proxy->getHttpResponse()->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could find proxy '%s': %s", $proxy["name"], $response->getBody())
+                sprintf("Could find proxy '%s': %s", $proxy["name"], $proxy->getHttpResponse()->getBody())
             );
         });
     }
@@ -101,11 +105,12 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     public function testGetArrayAccess()
     {
         $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
-            $response = $toxiproxy[$proxy["name"]];
+            $proxy = $toxiproxy[$proxy["name"]];
+            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
-                $response->getStatusCode(),
+                $proxy->getHttpResponse()->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could find proxy '%s': %s", $proxy["name"], $response->getBody())
+                sprintf("Could find proxy '%s': %s", $proxy["name"], $proxy->getHttpResponse()->getBody())
             );
         });
     }
