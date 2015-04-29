@@ -2,10 +2,17 @@
 
 use GuzzleHttp\Client as HttpClient,
     GuzzleHttp\Exception\ClientException as HttpClientException;
-use Ihsw\Toxiproxy\Exception\ProxyExistsException;
+use Ihsw\Toxiproxy\Exception\ProxyExistsException,
+    Ihsw\Toxiproxy\Exception\NotFoundException;
 
 class Toxiproxy
 {
+    const OK = 200;
+    const CREATED = 201;
+    const NOT_FOUND = 404;
+    const CONFLICT = 409;
+    const NO_CONTENT = 204;
+
     private $httpClient;
 
     public function __construct()
@@ -14,34 +21,67 @@ class Toxiproxy
     }
 
     /**
-     * @return HttpClient
+     * crud
      */
     public function getHttpClient()
     {
         return $this->httpClient;
     }
 
-    /**
-     * @param string
-     */
-    public function create($proxy, $upstream)
-    {
-        return $this->httpClient->post("/proxies", [
-            "body" => json_encode(["proxy" => $proxy, "upstream" => $upstream])
-        ]);
-    }
-
-    public function findAll()
+    public function all()
     {
         return json_decode($this->httpClient->get("/proxies")->getBody(), true);
     }
 
-    /**
-     * @param string
-     * @return uh
-     */
-    public function delete($proxy)
+    public function create($name, $upstream, $listen)
     {
-        return $this->httpClient->delete(sprintf("/proxies/%s", $proxy));
+        try
+        {
+            return $this->httpClient->post("/proxies", [
+                "body" => json_encode([
+                    "name" => $name,
+                    "upstream" => $upstream,
+                    "listen" => $listen
+                ])
+            ]);
+        }
+        catch (HttpClientException $e)
+        {
+            if ($e->getResponse()->getStatusCode() !== self::CONFLICT)
+            {
+                throw $e;
+            }
+            throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
+        }
+    }
+
+    public function get($name)
+    {
+        try
+        {
+            return $this->httpClient->get(sprintf("/proxies/%s", $name));
+        }
+        catch (HttpClientException $e)
+        {
+            if ($e->getResponse()->getStatusCode() === self::NOT_FOUND)
+            {
+                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
+            }
+        }
+    }
+
+    public function delete($name)
+    {
+        try
+        {
+            return $this->httpClient->delete(sprintf("/proxies/%s", $name));
+        }
+        catch (HttpClientException $e)
+        {
+            if ($e->getResponse()->getStatusCode() === self::NOT_FOUND)
+            {
+                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
+            }
+        }
     }
 }
