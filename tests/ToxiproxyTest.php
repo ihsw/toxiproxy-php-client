@@ -11,6 +11,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "localhost:6379";
     CONST TEST_LISTEN = "localhost:34343";
+    const NONEXISTENT_TEST_NAME = "ihsw_test_redis_nonexist";
 
     public function tearDown()
     {
@@ -57,6 +58,16 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
     }
 
+    /**
+     * @expectedException Ihsw\Toxiproxy\Exception\ProxyExistsException
+     */
+    public function testCreateDuplicate()
+    {
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+            $toxiproxy->create($proxy["name"], $proxy["upstream"], $proxy["listen"]);
+        });
+    }
+
     public function testGet()
     {
         $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
@@ -66,6 +77,16 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
                 Toxiproxy::OK,
                 sprintf("Could find proxy '%s': %s", $proxy["name"], $response->getBody())
             );
+        });
+    }
+
+    /**
+     * @expectedException Ihsw\Toxiproxy\Exception\NotFoundException
+     */
+    public function testGetNonexist()
+    {
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
+            $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
         });
     }
 
