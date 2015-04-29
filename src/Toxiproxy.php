@@ -58,8 +58,7 @@ class Toxiproxy
                     "listen" => $listen
                 ])
             ]);
-        }
-        catch (HttpClientException $e) {
+        } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
     }
@@ -68,8 +67,7 @@ class Toxiproxy
     {
         try {
             return $this->httpClient->get(sprintf("/proxies/%s", $name));
-        }
-        catch (HttpClientException $e) {
+        } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
     }
@@ -78,8 +76,7 @@ class Toxiproxy
     {
         try {
             return $this->httpClient->delete(sprintf("/proxies/%s", $name));
-        }
-        catch (HttpClientException $e) {
+        } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
     }
