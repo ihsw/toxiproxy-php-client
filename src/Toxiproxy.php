@@ -20,6 +20,21 @@ class Toxiproxy
         $this->httpClient = new HttpClient(["base_url" => "http://127.0.0.1:8474"]);
     }
 
+    private function handleHttpClientException(HttpClientException $e)
+    {
+        switch ($e->getResponse()->getStatusCode())
+        {
+            case self::CONFLICT:
+                throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
+                break;
+            case self::NOT_FOUND:
+                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
+                break;
+            default:
+                throw $e;
+        }
+    }
+
     /**
      * crud
      */
@@ -35,8 +50,7 @@ class Toxiproxy
 
     public function create($name, $upstream, $listen)
     {
-        try
-        {
+        try {
             return $this->httpClient->post("/proxies", [
                 "body" => json_encode([
                     "name" => $name,
@@ -45,43 +59,28 @@ class Toxiproxy
                 ])
             ]);
         }
-        catch (HttpClientException $e)
-        {
-            if ($e->getResponse()->getStatusCode() !== self::CONFLICT)
-            {
-                throw $e;
-            }
-            throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
+        catch (HttpClientException $e) {
+            $this->handleHttpClientException($e);
         }
     }
 
     public function get($name)
     {
-        try
-        {
+        try {
             return $this->httpClient->get(sprintf("/proxies/%s", $name));
         }
-        catch (HttpClientException $e)
-        {
-            if ($e->getResponse()->getStatusCode() === self::NOT_FOUND)
-            {
-                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
-            }
+        catch (HttpClientException $e) {
+            $this->handleHttpClientException($e);
         }
     }
 
     public function delete($name)
     {
-        try
-        {
+        try {
             return $this->httpClient->delete(sprintf("/proxies/%s", $name));
         }
-        catch (HttpClientException $e)
-        {
-            if ($e->getResponse()->getStatusCode() === self::NOT_FOUND)
-            {
-                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
-            }
+        catch (HttpClientException $e) {
+            $this->handleHttpClientException($e);
         }
     }
 }
