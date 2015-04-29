@@ -58,9 +58,9 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
     }
 
-    public function testCreateArrayAccess($callback = null)
+    public function testCreateArrayAccess()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback){
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
             $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
             $response = $toxiproxy[self::TEST_NAME];
             $this->assertEquals(
@@ -73,11 +73,6 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
                     $response->getBody()
                 )
             );
-
-            if (!is_null($callback))
-            {
-                $callback($toxiproxy, json_decode($response->getBody(), true));
-            }
         });
     }
 
