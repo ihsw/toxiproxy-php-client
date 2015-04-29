@@ -58,6 +58,29 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
     }
 
+    public function testCreateArrayAccess($callback = null)
+    {
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback){
+            $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
+            $response = $toxiproxy[self::TEST_NAME];
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
+                    self::TEST_NAME,
+                    self::TEST_UPSTREAM,
+                    self::TEST_NAME,
+                    $response->getBody()
+                )
+            );
+
+            if (!is_null($callback))
+            {
+                $callback($toxiproxy, json_decode($response->getBody(), true));
+            }
+        });
+    }
+
     /**
      * @expectedException Ihsw\Toxiproxy\Exception\ProxyExistsException
      */
@@ -80,6 +103,18 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
     }
 
+    public function testGetArrayAccess()
+    {
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+            $response = $toxiproxy[$proxy["name"]];
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could find proxy '%s': %s", $proxy["name"], $response->getBody())
+            );
+        });
+    }
+
     /**
      * @expectedException Ihsw\Toxiproxy\Exception\NotFoundException
      */
@@ -87,6 +122,13 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     {
         $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
             $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        });
+    }
+
+    public function testGetNonexistArrayAccess()
+    {
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
+            $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
         });
     }
 
@@ -98,6 +140,18 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
                 $response->getStatusCode(),
                 Toxiproxy::NO_CONTENT,
                 sprintf("Could not delete proxy '%s': %s", $proxy["name"], $response->getBody())
+            );
+        });
+    }
+
+    public function testDeleteArrayAccess()
+    {
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+            unset($toxiproxy[$proxy["name"]]);
+            $this->assertFalse(
+                array_key_exists($proxy["name"], $toxiproxy),
+                Toxiproxy::NO_CONTENT,
+                sprintf("Could not delete proxy '%s'", $proxy["name"])
             );
         });
     }

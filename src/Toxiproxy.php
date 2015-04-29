@@ -5,7 +5,7 @@ use GuzzleHttp\Client as HttpClient,
 use Ihsw\Toxiproxy\Exception\ProxyExistsException,
     Ihsw\Toxiproxy\Exception\NotFoundException;
 
-class Toxiproxy
+class Toxiproxy implements \ArrayAccess
 {
     const OK = 200;
     const CREATED = 201;
@@ -22,8 +22,7 @@ class Toxiproxy
 
     private function handleHttpClientException(HttpClientException $e)
     {
-        switch ($e->getResponse()->getStatusCode())
-        {
+        switch ($e->getResponse()->getStatusCode()) {
             case self::CONFLICT:
                 throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
                 break;
@@ -33,6 +32,35 @@ class Toxiproxy
             default:
                 throw $e;
         }
+    }
+
+    /**
+     * ArrayAccess
+     */
+    public function offsetExists($offset)
+    {
+        try {
+            $this->get($offset);
+            return true;
+        } catch (NotFoundException $e) {
+            return false;
+        }
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        array_unshift($value, $offset);
+        call_user_func_array([$this, "create"], $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->delete($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
     }
 
     /**
