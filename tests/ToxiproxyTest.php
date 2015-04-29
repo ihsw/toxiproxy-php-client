@@ -52,31 +52,31 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
 
             if (!is_null($callback))
             {
-                $callback($toxiproxy);
+                $callback($toxiproxy, json_decode($response->getBody(), true));
             }
         });
     }
 
     public function testGet()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy){
-            $response = $toxiproxy->get(self::TEST_NAME);
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+            $response = $toxiproxy->get($proxy["name"]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could find proxy '%s': %s", self::TEST_NAME, $response->getBody())
+                sprintf("Could find proxy '%s': %s", $proxy["name"], $response->getBody())
             );
         });
     }
 
     public function testDelete()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy){
-            $response = $toxiproxy->delete(self::TEST_NAME);
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+            $response = $toxiproxy->delete($proxy["name"]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::NO_CONTENT,
-                sprintf("Could not delete proxy '%s': %s", self::TEST_NAME, $response->getBody())
+                sprintf("Could not delete proxy '%s': %s", $proxy["name"], $response->getBody())
             );
         });
     }
