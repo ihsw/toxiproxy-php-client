@@ -105,10 +105,10 @@ class Toxiproxy implements \ArrayAccess
         }
     }
 
-    public function delete($name)
+    public function delete(Proxy $proxy)
     {
         try {
-            return $this->httpClient->delete(sprintf("/proxies/%s", $name));
+            return $this->httpClient->delete(sprintf("/proxies/%s", $proxy["name"]));
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }

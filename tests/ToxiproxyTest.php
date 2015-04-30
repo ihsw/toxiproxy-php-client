@@ -22,7 +22,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
         foreach ($proxies as $proxy)
         {
-            $toxiproxy->delete($proxy["name"]);
+            $toxiproxy->delete($proxy);
         }
     }
 
@@ -148,7 +148,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
-            $response = $toxiproxy->delete($proxy["name"]);
+            $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::NO_CONTENT,
@@ -160,7 +160,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
     public function testDeleteArrayAccess()
     {
         $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
-            unset($toxiproxy[$proxy["name"]]);
+            unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy["name"], $toxiproxy),
                 Toxiproxy::NO_CONTENT,
