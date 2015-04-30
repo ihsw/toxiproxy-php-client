@@ -74,7 +74,9 @@ class Toxiproxy implements \ArrayAccess
 
     public function all()
     {
-        return json_decode($this->httpClient->get("/proxies")->getBody(), true);
+        return array_map(function($content){
+            return new Proxy($this, $content);
+        }, json_decode($this->httpClient->get("/proxies")->getBody(), true));
     }
 
     public function create($name, $upstream, $listen)

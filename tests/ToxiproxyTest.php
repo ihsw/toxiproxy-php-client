@@ -60,6 +60,19 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         });
     }
 
+    public function testAll()
+    {
+        $this->testCreate(function(Toxiproxy $toxiproxy){
+            $result = array_reduce($toxiproxy->all(), function($result, $proxy){
+                if (!$proxy) {
+                    return $proxy;
+                }
+                return $proxy instanceof Proxy;
+            }, true);
+            $this->assertTrue($result, "All results were not instances of Proxy");
+        });
+    }
+
     public function testCreateArrayAccess()
     {
         $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
