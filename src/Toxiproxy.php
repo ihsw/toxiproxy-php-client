@@ -4,6 +4,7 @@ use GuzzleHttp\Client as HttpClient,
     GuzzleHttp\Exception\ClientException as HttpClientException;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException,
     Ihsw\Toxiproxy\Exception\NotFoundException,
+    Ihsw\Toxiproxy\Exception\InvalidToxicException,
     Ihsw\Toxiproxy\Proxy;
 
 class Toxiproxy implements \ArrayAccess
@@ -22,7 +23,7 @@ class Toxiproxy implements \ArrayAccess
         $this->httpClient = new HttpClient(["base_url" => "http://127.0.0.1:8474"]);
     }
 
-    private function handleHttpClientException(HttpClientException $e)
+    public function handleHttpClientException(HttpClientException $e)
     {
         switch ($e->getResponse()->getStatusCode()) {
             case self::CONFLICT:
@@ -31,6 +32,8 @@ class Toxiproxy implements \ArrayAccess
             case self::NOT_FOUND:
                 throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
                 break;
+            case self::BAD_REQUEST:
+                throw new InvalidToxicException($e->getResponse()->getBody(),  $e->getCode(), $e);
             default:
                 throw $e;
         }
