@@ -2,7 +2,6 @@
 
 use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Client,
     Ihsw\Toxiproxy\Exception\ProxyExistsException,
     Ihsw\Toxiproxy\Exception\NotFoundException,
     Ihsw\Toxiproxy\Proxy;
