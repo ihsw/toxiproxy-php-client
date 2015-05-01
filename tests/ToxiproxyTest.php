@@ -20,8 +20,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         $proxies = array_filter($toxiproxy->all(), function($proxy){
             return strlen($proxy["name"]) > 0;
         });
-        foreach ($proxies as $proxy)
-        {
+        foreach ($proxies as $proxy) {
             $toxiproxy->delete($proxy);
         }
     }
@@ -31,8 +30,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
         $toxiproxy = new Toxiproxy();
         $this->assertTrue($toxiproxy->getHttpClient() instanceof HttpClient, "Toxiproxy http-client was not an instance of HttpClient");
 
-        if (!is_null($callback))
-        {
+        if (!is_null($callback)) {
             $callback($toxiproxy);
         }
     }
@@ -53,8 +51,7 @@ class ToxiproxyTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-            if (!is_null($callback))
-            {
+            if (!is_null($callback)) {
                 $callback($toxiproxy, $proxy);
             }
         });
