@@ -1,6 +1,7 @@
 <?php namespace Ihsw\Toxiproxy;
 
-use GuzzleHttp\Message\Response as HttpResponse;
+use GuzzleHttp\Message\Response as HttpResponse,
+    GuzzleHttp\Exception\ClientException as HttpClientException;
 use Ihsw\Toxiproxy\Toxiproxy;
 
 class Proxy implements \ArrayAccess
@@ -29,6 +30,11 @@ class Proxy implements \ArrayAccess
         return $this->httpResponse;
     }
 
+    private function getHttpClient()
+    {
+        return $this->toxiproxy->getHttpClient();
+    }
+
     /**
      * ArrayAccess
      */
@@ -50,5 +56,23 @@ class Proxy implements \ArrayAccess
     public function offsetGet($offset)
     {
         return $this->content[$offset];
+    }
+
+    /**
+     * crud
+     */
+    public function create($name, $direction, array $options)
+    {
+        $settings = array_merge(["latency" => 0, "jitter" => 0, "enabled" => true], $options);
+        $url = sprintf("proxies/%s/%s/toxics/%s",
+            $this->content["name"],
+            $direction,
+            $name
+        );
+        try {
+            return $this->getHttpClient()->post($url, ["body" => json_encode($settings)]);
+        } catch (HttpClientException $e) {
+            $this->toxiproxy->handleHttpClientException($e);
+        }
     }
 }
