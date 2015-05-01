@@ -36,6 +36,14 @@ class Toxiproxy implements \ArrayAccess
     }
 
     /**
+     * misc
+     */
+    public function getHttpClient()
+    {
+        return $this->httpClient;
+    }
+
+    /**
      * ArrayAccess
      */
     public function offsetExists($offset)
@@ -67,11 +75,6 @@ class Toxiproxy implements \ArrayAccess
     /**
      * crud
      */
-    public function getHttpClient()
-    {
-        return $this->httpClient;
-    }
-
     public function all()
     {
         return array_map(function($content){
