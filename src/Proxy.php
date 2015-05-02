@@ -2,7 +2,8 @@
 
 use GuzzleHttp\Message\Response as HttpResponse,
     GuzzleHttp\Exception\ClientException as HttpClientException;
-use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Toxiproxy,
+    Ihsw\Toxiproxy\Exception\InvalidToxicException;
 
 class Proxy implements \ArrayAccess
 {
@@ -63,7 +64,16 @@ class Proxy implements \ArrayAccess
      */
     public function update($name, $direction, array $options)
     {
-        $settings = array_merge(["latency" => 0, "jitter" => 0, "enabled" => true], $options);
+        $toxicSettings = [
+            "latency" => ["enabled" => true, "latency" => 0, "jitter" => 0],
+            "slow_close" => ["enabled" => true, "delay" => 0],
+            "timeout" => ["enabled" => true, "timeout" => 0]
+        ];
+        if (!array_key_exists($name, $toxicSettings)) {
+            throw new InvalidToxicException(sprintf("Toxic %s could not be found", $name));
+        }
+
+        $settings = array_merge($toxicSettings[$name], $options);
         $url = sprintf("proxies/%s/%s/toxics/%s",
             $this->content["name"],
             $direction,
