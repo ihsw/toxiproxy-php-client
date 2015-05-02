@@ -42,26 +42,26 @@ class JitterTest extends \PHPUnit_Framework_TestCase
         $callback($proxy);
     }
 
-    public function testUpdateJitterDownstream()
+    public function testUpdateSlowCloseDownstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("latency", "downstream", ["jitter" => 100]);
+            $response = $proxy->update("slow_close", "downstream", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update downstream slow_close toxic for proxy '%s'", $proxy["name"])
             );
         });
     }
 
-    public function testUpdateJitterUpstream()
+    public function testUpdateSlowCloseUpstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("latency", "upstream", ["jitter" => 100]);
+            $response = $proxy->update("slow_close", "upstream", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update upstream slow_close toxic for proxy '%s'", $proxy["name"])
             );
         });
     }

@@ -65,4 +65,28 @@ class LatencyTest extends \PHPUnit_Framework_TestCase
             );
         });
     }
+
+    public function testUpdateJitterDownstream()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("latency", "downstream", ["jitter" => 100]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
+
+    public function testUpdateJitterUpstream()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("latency", "upstream", ["jitter" => 100]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
 }
