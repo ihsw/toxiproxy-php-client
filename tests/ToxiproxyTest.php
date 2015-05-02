@@ -1,28 +1,15 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Toxiproxy,
+use Ihsw\Toxiproxy\Test\AbstractTest,
+    Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Exception\ProxyExistsException,
     Ihsw\Toxiproxy\Exception\NotFoundException,
     Ihsw\Toxiproxy\Proxy;
 
-class ToxiproxyTest extends \PHPUnit_Framework_TestCase
+class ToxiproxyTest extends AbstractTest
 {
-    const TEST_NAME = "ihsw_test_redis_master";
-    const TEST_UPSTREAM = "localhost:6379";
-    CONST TEST_LISTEN = "localhost:34343";
     const NONEXISTENT_TEST_NAME = "ihsw_test_redis_nonexist";
-
-    public function tearDown()
-    {
-        $toxiproxy = new Toxiproxy();
-        $proxies = array_filter($toxiproxy->all(), function($proxy){
-            return strlen($proxy["name"]) > 0;
-        });
-        foreach ($proxies as $proxy) {
-            $toxiproxy->delete($proxy);
-        }
-    }
 
     public function testGetHttpClient($callback = null)
     {
