@@ -56,4 +56,19 @@ class ProxyTest extends \PHPUnit_Framework_TestCase
             );
         });
     }
+
+    /**
+     * @expectedException Ihsw\Toxiproxy\Exception\InvalidToxicException
+     */
+    public function testUpdateInvalidToxicDirection()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("latency", "fdsfgs", []);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update fdsfgs latency toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
 }

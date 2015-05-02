@@ -64,6 +64,11 @@ class Proxy implements \ArrayAccess
      */
     public function update($name, $direction, array $options)
     {
+        $validDirections = ["upstream", "downstream"];
+        if (!in_array($direction, $validDirections)) {
+            throw new InvalidToxicException(sprintf("Direction must be one of: %s", implode(", ", $validDirections)));
+        }
+
         $toxicSettings = [
             "latency" => ["enabled" => true, "latency" => 0, "jitter" => 0],
             "slow_close" => ["enabled" => true, "delay" => 0],
@@ -73,7 +78,7 @@ class Proxy implements \ArrayAccess
             throw new InvalidToxicException(sprintf("Toxic %s could not be found", $name));
         }
 
-        $settings = array_merge($toxicSettings[$name], $options);
+        $settings = array_merge($toxicSettings[$name], $this->content[sprintf("%s_toxics", $direction)][$name], $options);
         $url = sprintf("proxies/%s/%s/toxics/%s",
             $this->content["name"],
             $direction,

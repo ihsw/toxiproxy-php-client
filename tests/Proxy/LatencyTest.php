@@ -65,19 +65,4 @@ class LatencyTest extends \PHPUnit_Framework_TestCase
             );
         });
     }
-
-    /**
-     * @expectedException Ihsw\Toxiproxy\Exception\NotFoundException
-     */
-    public function testUpdateLatencyInvalidDirection()
-    {
-        $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("latency", "fdsfgs", ["latency" => 100]);
-            $this->assertEquals(
-                $response->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not update fdsfgs latency toxic for proxy '%s'", $proxy["name"])
-            );
-        });
-    }
 }
