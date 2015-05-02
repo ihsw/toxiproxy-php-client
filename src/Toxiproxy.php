@@ -120,4 +120,9 @@ class Toxiproxy implements \ArrayAccess
             $this->handleHttpClientException($e);
         }
     }
+
+    public function exists($name)
+    {
+        return $this->offsetExists($name);
+    }
 }
