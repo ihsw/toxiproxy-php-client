@@ -53,4 +53,46 @@ class ProxyTest extends \PHPUnit_Framework_TestCase
             );
         });
     }
+
+    public function testUpdateLatencyUpstream()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("latency", "upstream", ["latency" => 100]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
+
+    /**
+     * @expectedException Ihsw\Toxiproxy\Exception\NotFoundException
+     */
+    public function testUpdateLatencyInvalidDirection()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("latency", "fdsfgs", ["latency" => 100]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update fdsfgs latency toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
+
+    /**
+     * @expectedException Ihsw\Toxiproxy\Exception\InvalidToxicException
+     */
+    public function testUpdateInvalidToxic()
+    {
+        $this->handleProxy(function(Proxy $proxy){
+            $response = $proxy->update("fdsfgs", "downstream", []);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update downstream fdsfgs toxic for proxy '%s'", $proxy["name"])
+            );
+        });
+    }
 }
