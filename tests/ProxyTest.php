@@ -10,6 +10,9 @@ class ProxyTest extends \PHPUnit_Framework_TestCase
     const TEST_UPSTREAM = "localhost:6379";
     CONST TEST_LISTEN = "localhost:34343";
 
+    const TEST_TOXIC = "latency";
+    const TEST_DIRECTION = "downstream";
+
     public function tearDown()
     {
         $toxiproxy = new Toxiproxy();
@@ -42,11 +45,19 @@ class ProxyTest extends \PHPUnit_Framework_TestCase
         $callback($proxy);
     }
 
-    public function testCreate()
+    public function testUpdate()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->create("latency", "upstream", ["latency" => 100]);
-            throw new \Exception($response->getStatusCode());
+            $response = $proxy->update(self::TEST_TOXIC, self::TEST_DIRECTION, ["latency" => 100]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update toxic '%s' for proxy '%s' in direction '%s'",
+                    self::TEST_TOXIC,
+                    $proxy["name"],
+                    self::TEST_DIRECTION
+                )
+            );
         });
     }
 }

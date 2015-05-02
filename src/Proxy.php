@@ -61,7 +61,7 @@ class Proxy implements \ArrayAccess
     /**
      * crud
      */
-    public function create($name, $direction, array $options)
+    public function update($name, $direction, array $options)
     {
         $settings = array_merge(["latency" => 0, "jitter" => 0, "enabled" => true], $options);
         $url = sprintf("proxies/%s/%s/toxics/%s",
