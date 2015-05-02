@@ -1,3 +1,5 @@
 <?php namespace Ihsw\Toxiproxy\Exception;
 
-class ProxyExistsException extends \RuntimeException {}
+use Ihsw\Toxiproxy\Exception\Exception;
+
+class ProxyExistsException extends Exception {}

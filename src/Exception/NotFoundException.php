@@ -1,3 +1,5 @@
 <?php namespace Ihsw\Toxiproxy\Exception;
 
-class NotFoundException extends \RuntimeException {}
+use Ihsw\Toxiproxy\Exception\Exception;
+
+class NotFoundException extends Exception {}

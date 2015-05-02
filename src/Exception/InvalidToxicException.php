@@ -1,3 +1,5 @@
 <?php namespace Ihsw\Toxiproxy\Exception;
 
-class InvalidToxicException extends \RuntimeException {}
+use Ihsw\Toxiproxy\Exception\Exception;
+
+class InvalidToxicException extends Exception {}
