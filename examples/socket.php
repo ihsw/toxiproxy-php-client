@@ -16,10 +16,10 @@ $canConnect = function($ip, $port) {
     $connector = new ClientConnector($loop, $dns);
 
     // socket loop
-    $promise = $connector->create($ip, $port)->then(function (Stream $stream) use ($loop) {
+    $promise = $connector->create($ip, $port)->then(function (Stream $stream) {
         $stream->close();
         return true;
-    }, function(ConnectionException $e) use($loop) {
+    }, function(ConnectionException $e) {
         return false;
     });
 
