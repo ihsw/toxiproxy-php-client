@@ -1,14 +1,19 @@
 <?php namespace Ihsw\Toxiproxy\Test;
 
 use GuzzleHttp\Client as HttpClient;
+use React\EventLoop\Factory as EventLoopFactory,
+    React\Dns\Resolver\Factory as DnsResolverFactory,
+    React\SocketClient\Connector as ClientConnector,
+    React\SocketClient\ConnectionException,
+    React\Stream\Stream;
 use Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 {
     const TEST_NAME = "ihsw_test_redis_master";
-    const TEST_UPSTREAM = "localhost:6379";
-    const TEST_LISTEN = "localhost:34343";
+    const TEST_UPSTREAM = "127.0.0.1:6379";
+    const TEST_LISTEN = "127.0.0.1:34343";
 
     public function tearDown()
     {
@@ -40,5 +45,33 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         );
 
         $callback($proxy);
+    }
+
+    protected function canConnect($ip, $port)
+    {
+        // misc
+        $loop = EventLoopFactory::create();
+        $dnsResolverFactory = new DnsResolverFactory();
+        $dns = $dnsResolverFactory->createCached("8.8.8.8", $loop); // dunno why dns is required for this shit
+        $connector = new ClientConnector($loop, $dns);
+
+        // socket loop definition
+        $promise = $connector->create($ip, $port)->then(function (Stream $stream) {
+            $stream->close();
+            return true;
+        }, function(ConnectionException $e) {
+            return false;
+        });
+
+        // starting it up
+        $loop->run();
+
+        // catching the output
+        $out = null;
+        $promise->done(function($v) use(&$out) {
+            $out = $v;
+        });
+
+        return $out;
     }
 }
