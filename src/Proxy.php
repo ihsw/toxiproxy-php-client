@@ -60,9 +60,37 @@ class Proxy implements \ArrayAccess
     }
 
     /**
-     * crud
+     * api access
      */
-    private function update($name, $direction, array $options)
+    private function setToxics($toxic, $direction, $data)
+    {
+        $url = sprintf("proxies/%s/%s/toxics/%s",
+            $this->content["name"],
+            $direction,
+            $toxic
+        );
+        try {
+            return $this->getHttpClient()->post($url, ["body" => json_encode($data)]);
+        } catch (HttpClientException $e) {
+            $this->toxiproxy->handleHttpClientException($e);
+        }
+    }
+
+    private function setProxy($data)
+    {
+        try {
+            return $this->getHttpClient()->post(sprintf("/proxies/%s", $this->content["name"]), [
+                "body" => json_encode($data)
+            ]);
+        } catch (HttpClientException $e) {
+            $this->toxiproxy->handleHttpClientException($e);
+        }
+    }
+
+    /**
+     * derived api access
+     */
+    private function update($toxic, $direction, array $options)
     {
         $validDirections = ["upstream", "downstream"];
         if (!in_array($direction, $validDirections)) {
@@ -74,30 +102,31 @@ class Proxy implements \ArrayAccess
             "slow_close" => ["enabled" => true, "delay" => 0],
             "timeout" => ["enabled" => true, "timeout" => 0]
         ];
-        if (!array_key_exists($name, $toxicSettings)) {
-            throw new InvalidToxicException(sprintf("Toxic %s could not be found", $name));
+        if (!array_key_exists($toxic, $toxicSettings)) {
+            throw new InvalidToxicException(sprintf("Toxic %s could not be found", $toxic));
         }
 
-        $settings = array_merge($toxicSettings[$name], $this->content[sprintf("%s_toxics", $direction)][$name], $options);
-        $url = sprintf("proxies/%s/%s/toxics/%s",
-            $this->content["name"],
-            $direction,
-            $name
-        );
-        try {
-            return $this->getHttpClient()->post($url, ["body" => json_encode($settings)]);
-        } catch (HttpClientException $e) {
-            $this->toxiproxy->handleHttpClientException($e);
-        }
+        $data = array_merge($toxicSettings[$toxic], $this->content[sprintf("%s_toxics", $direction)][$toxic], $options);
+        return $this->setToxics($toxic, $direction, $data);
     }
 
-    public function updateDownstream($name, array $options)
+    public function updateDownstream($toxic, array $options)
     {
-        return $this->update($name, "downstream", $options);
+        return $this->update($toxic, "downstream", $options);
     }
 
-    public function updateUpstream($name, array $options)
+    public function updateUpstream($toxic, array $options)
     {
-        return $this->update($name, "upstream", $options);
+        return $this->update($toxic, "upstream", $options);
+    }
+
+    public function disable()
+    {
+        return $this->setProxy(["enabled" => false]);
+    }
+
+    public function enable()
+    {
+        return $this->setProxy(["enabled" => true]);
     }
 }
