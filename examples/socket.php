@@ -15,7 +15,7 @@ $canConnect = function($ip, $port) {
     $dns = $dnsResolverFactory->createCached("8.8.8.8", $loop); // dunno why dns is required for this shit
     $connector = new ClientConnector($loop, $dns);
 
-    // socket loop
+    // socket loop definition
     $promise = $connector->create($ip, $port)->then(function (Stream $stream) {
         $stream->close();
         return true;
