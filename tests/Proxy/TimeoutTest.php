@@ -10,7 +10,7 @@ class TimeoutTest extends AbstractTest
     public function testUpdateTimeoutDownstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("timeout", "downstream", ["timeout" => 1000]);
+            $response = $proxy->updateDownstream("timeout", ["timeout" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
@@ -22,7 +22,7 @@ class TimeoutTest extends AbstractTest
     public function testUpdateTimeoutUpstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("timeout", "upstream", ["timeout" => 1000]);
+            $response = $proxy->updateUpstream("timeout", ["timeout" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,

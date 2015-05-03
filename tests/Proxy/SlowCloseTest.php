@@ -10,7 +10,7 @@ class JitterTest extends AbstractTest
     public function testUpdateSlowCloseDownstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("slow_close", "downstream", ["delay" => 1000]);
+            $response = $proxy->updateDownstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
@@ -22,7 +22,7 @@ class JitterTest extends AbstractTest
     public function testUpdateSlowCloseUpstream()
     {
         $this->handleProxy(function(Proxy $proxy){
-            $response = $proxy->update("slow_close", "upstream", ["delay" => 1000]);
+            $response = $proxy->updateUpstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,

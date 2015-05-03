@@ -62,7 +62,7 @@ class Proxy implements \ArrayAccess
     /**
      * crud
      */
-    public function update($name, $direction, array $options)
+    private function update($name, $direction, array $options)
     {
         $validDirections = ["upstream", "downstream"];
         if (!in_array($direction, $validDirections)) {
@@ -89,5 +89,15 @@ class Proxy implements \ArrayAccess
         } catch (HttpClientException $e) {
             $this->toxiproxy->handleHttpClientException($e);
         }
+    }
+
+    public function updateDownstream($name, array $options)
+    {
+        return $this->update($name, "downstream", $options);
+    }
+
+    public function updateUpstream($name, array $options)
+    {
+        return $this->update($name, "upstream", $options);
     }
 }
