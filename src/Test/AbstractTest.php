@@ -21,7 +21,10 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     public function handleProxy(\Closure $callback)
     {
         $toxiproxy = new Toxiproxy();
-        $this->assertTrue($toxiproxy->getHttpClient() instanceof HttpClient, "Toxiproxy http-client was not an instance of HttpClient");
+        $this->assertTrue(
+            $toxiproxy->getHttpClient() instanceof HttpClient,
+            "Toxiproxy http-client was not an instance of HttpClient"
+        );
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");

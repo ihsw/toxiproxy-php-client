@@ -14,7 +14,10 @@ class ToxiproxyTest extends AbstractTest
     public function testGetHttpClient($callback = null)
     {
         $toxiproxy = new Toxiproxy();
-        $this->assertTrue($toxiproxy->getHttpClient() instanceof HttpClient, "Toxiproxy http-client was not an instance of HttpClient");
+        $this->assertTrue(
+            $toxiproxy->getHttpClient() instanceof HttpClient,
+            "Toxiproxy http-client was not an instance of HttpClient"
+        );
 
         if (!is_null($callback)) {
             $callback($toxiproxy);
