@@ -12,7 +12,7 @@ class ProxyTest extends AbstractTest
      */
     public function testUpdateInvalidToxic()
     {
-        $this->handleProxy(function(Proxy $proxy){
+        $this->handleProxy(function(Proxy $proxy) {
             $response = $proxy->updateDownstream("fdsfgs", []);
             $this->assertEquals(
                 $response->getStatusCode(),

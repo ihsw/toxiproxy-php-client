@@ -8,7 +8,7 @@ use React\EventLoop\Factory as EventLoopFactory,
     React\SocketClient\ConnectionException,
     React\Stream\Stream;
 
-$canConnect = function($ip, $port){
+$canConnect = function($ip, $port) {
     // misc
     $loop = EventLoopFactory::create();
     $dnsResolverFactory = new DnsResolverFactory();

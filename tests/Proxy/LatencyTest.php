@@ -9,7 +9,7 @@ class LatencyTest extends AbstractTest
 {
     public function testUpdateLatencyDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy){
+        $this->handleProxy(function(Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["latency" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -21,7 +21,7 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateLatencyUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy){
+        $this->handleProxy(function(Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["latency" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -33,7 +33,7 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateJitterDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy){
+        $this->handleProxy(function(Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -45,7 +45,7 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateJitterUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy){
+        $this->handleProxy(function(Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),

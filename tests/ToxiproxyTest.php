@@ -23,7 +23,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testCreate($callback = null)
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback){
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback) {
             $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -45,8 +45,8 @@ class ToxiproxyTest extends AbstractTest
 
     public function testAll()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy){
-            $result = array_reduce($toxiproxy->all(), function($result, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy) {
+            $result = array_reduce($toxiproxy->all(), function($result, $proxy) {
                 if (!$proxy) {
                     return $proxy;
                 }
@@ -58,7 +58,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testCreateArrayAccess()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
             $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
             $proxy = $toxiproxy[self::TEST_NAME];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
@@ -80,14 +80,14 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testCreateDuplicate()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
             $toxiproxy->create($proxy["name"], $proxy["upstream"], $proxy["listen"]);
         });
     }
 
     public function testGet()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
             $proxy = $toxiproxy->get($proxy["name"]);
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -100,7 +100,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testGetArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
             $proxy = $toxiproxy[$proxy["name"]];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -116,21 +116,21 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testGetNonexist()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
             $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
         });
     }
 
     public function testGetNonexistArrayAccess()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy){
+        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
             $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
         });
     }
 
     public function testDelete()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
             $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -142,7 +142,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDeleteArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy){
+        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy["name"], $toxiproxy),
