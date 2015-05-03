@@ -11,7 +11,7 @@ class ToxiproxyTest extends AbstractTest
 {
     const NONEXISTENT_TEST_NAME = "ihsw_test_redis_nonexist";
 
-    public function testGetHttpClient($callback = null)
+    public function testGetHttpClient(\Closure $callback = null)
     {
         $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
         $this->assertTrue(
@@ -83,14 +83,14 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testCreateDuplicate()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $toxiproxy->create($proxy["name"], $proxy["upstream"], $proxy["listen"]);
         });
     }
 
     public function testGet()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy->get($proxy["name"]);
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -103,7 +103,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testGetArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy[$proxy["name"]];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -133,7 +133,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDelete()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -145,12 +145,30 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDeleteArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, $proxy) {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy["name"], $toxiproxy),
                 sprintf("Could not delete proxy '%s'", $proxy["name"])
             );
+        });
+    }
+
+    public function testReset()
+    {
+        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+            $response = $proxy->updateDownstream("latency", ["enabled" => true, "latency" => 1000]);
+            $this->assertEquals(
+                $response->getStatusCode(),
+                Toxiproxy::OK,
+                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+            );
+
+            $proxy->disable();
+            $this->assertProxyUnavailable($proxy);
+
+            $toxiproxy->reset();
+            $this->assertProxyAvailable($proxy);
         });
     }
 }

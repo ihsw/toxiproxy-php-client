@@ -125,4 +125,9 @@ class Toxiproxy implements \ArrayAccess
     {
         return $this->offsetExists($name);
     }
+
+    public function reset()
+    {
+        return $this->httpClient->get("/reset");
+    }
 }
