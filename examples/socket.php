@@ -2,27 +2,32 @@
 
 require("./vendor/autoload.php");
 
-$loop = React\EventLoop\Factory::create();
+use React\EventLoop\Factory as EventLoopFactory,
+    React\Dns\Resolver\Factory as DnsResolverFactory,
+    React\SocketClient\Connector as ClientConnector,
+    React\SocketClient\ConnectionException,
+    React\Stream\Stream;
 
-$dnsResolverFactory = new React\Dns\Resolver\Factory();
-$dns = $dnsResolverFactory->createCached("8.8.8.8", $loop);
-$connector = new React\SocketClient\Connector($loop, $dns);
-$connector->create("127.0.0.1", 43434)->then(function (React\Stream\Stream $stream) use ($loop) {
-    $i = 0;
-    $loop->addPeriodicTimer(1, function(React\EventLoop\Timer\Timer $timer) use (&$i, $loop, $stream) {
-    	$i++;
-    	$command = sprintf("SET derp:%s %s", $i, $i). "\n";
-    	echo $command;
-        $stream->write($command . PHP_EOL);
+$canConnect = function($ip, $port){
+    $loop = EventLoopFactory::create();
+    $dnsResolverFactory = new DnsResolverFactory();
+    $dns = $dnsResolverFactory->createCached("8.8.8.8", $loop); // dunno why dns is required for this shit
 
-        if ($i >= 15) {
-            $loop->cancelTimer($timer);
-            $stream->close();
-        }
+    $connector = new ClientConnector($loop, $dns);
+    $promise = $connector->create($ip, $port)->then(function (Stream $stream) use ($loop) {
+        $stream->close();
+        return true;
+    }, function(ConnectionException $e) use($loop){
+        return false;
     });
-    $stream->on("data", function ($data) {
-        echo $data;
-    });
-});
 
-$loop->run();
+    $loop->run();
+
+    $out = null;
+    $promise->done(function($v) use(&$out){
+        $out = $v;
+    });
+    return $out;
+};
+
+var_dump($canConnect("127.0.0.1", 43434));
