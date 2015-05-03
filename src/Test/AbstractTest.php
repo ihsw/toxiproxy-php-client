@@ -14,10 +14,11 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
     const TEST_LISTEN = "127.0.0.1:34343";
+    const TEST_BASE_URL = "http://127.0.0.1:53535";
 
     public function tearDown()
     {
-        $toxiproxy = new Toxiproxy();
+        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
         if ($toxiproxy->exists(self::TEST_NAME)) {
             $toxiproxy->delete($toxiproxy->get(self::TEST_NAME));
         }
@@ -25,7 +26,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     protected function handleProxy(\Closure $callback)
     {
-        $toxiproxy = new Toxiproxy();
+        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
         $this->assertTrue(
             $toxiproxy->getHttpClient() instanceof HttpClient,
             "Toxiproxy http-client was not an instance of HttpClient"

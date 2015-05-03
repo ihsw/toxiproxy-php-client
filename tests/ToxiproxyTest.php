@@ -13,7 +13,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testGetHttpClient($callback = null)
     {
-        $toxiproxy = new Toxiproxy();
+        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
         $this->assertTrue(
             $toxiproxy->getHttpClient() instanceof HttpClient,
             "Toxiproxy http-client was not an instance of HttpClient"
