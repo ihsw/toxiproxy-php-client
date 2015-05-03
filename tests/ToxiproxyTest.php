@@ -149,7 +149,6 @@ class ToxiproxyTest extends AbstractTest
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy["name"], $toxiproxy),
-                Toxiproxy::NO_CONTENT,
                 sprintf("Could not delete proxy '%s'", $proxy["name"])
             );
         });
