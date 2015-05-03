@@ -19,7 +19,7 @@ $canConnect = function($ip, $port){
     $promise = $connector->create($ip, $port)->then(function (Stream $stream) use ($loop) {
         $stream->close();
         return true;
-    }, function(ConnectionException $e) use($loop){
+    }, function(ConnectionException $e) use($loop) {
         return false;
     });
 
@@ -28,7 +28,7 @@ $canConnect = function($ip, $port){
 
     // catching the output
     $out = null;
-    $promise->done(function($v) use(&$out){
+    $promise->done(function($v) use(&$out) {
         $out = $v;
     });
 
