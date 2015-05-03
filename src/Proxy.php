@@ -106,7 +106,11 @@ class Proxy implements \ArrayAccess
             throw new InvalidToxicException(sprintf("Toxic %s could not be found", $toxic));
         }
 
-        $data = array_merge($toxicSettings[$toxic], $this->content[sprintf("%s_toxics", $direction)][$toxic], $options);
+        $data = array_merge(
+            $toxicSettings[$toxic],
+            $this->content[sprintf("%s_toxics", $direction)][$toxic],
+            $options
+        );
         return $this->setToxics($toxic, $direction, $data);
     }
 
