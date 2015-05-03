@@ -14,7 +14,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
     const TEST_LISTEN = "127.0.0.1:34343";
-    const TEST_BASE_URL = "http://127.0.0.1:53535";
+    const TEST_BASE_URL = "http://127.0.0.1:8474";
 
     public function tearDown()
     {
