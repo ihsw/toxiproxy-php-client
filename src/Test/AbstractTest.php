@@ -18,7 +18,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function handleProxy(\Closure $callback)
+    protected function handleProxy(\Closure $callback)
     {
         $toxiproxy = new Toxiproxy();
         $this->assertTrue(
