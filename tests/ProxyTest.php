@@ -32,10 +32,9 @@ class ProxyTest extends AbstractTest
                 sprintf("Could not disable proxy '%s': %s", $proxy["name"], $response->getBody())
             );
 
-            list($ip, $port) = explode(":", $proxy["listen"]);
-            $this->assertFalse(
-                $this->canConnect($ip, $port),
-                sprintf("Could not verify disabling proxy '%s'", $proxy["name"])
+            $this->assertProxyUnavailable(
+                $proxy,
+                sprintf("Could not verify proxy '%s' being unavailable", $proxy["name"])
             );
 
             if (!is_null($callback)) {
@@ -54,10 +53,9 @@ class ProxyTest extends AbstractTest
                 sprintf("Could not enable proxy '%s': %s", $proxy["name"], $response->getBody())
             );
 
-            list($ip, $port) = explode(":", $proxy["listen"]);
-            $this->assertTrue(
-                $this->canConnect($ip, $port),
-                sprintf("Could not verify enabling proxy '%s'", $proxy["name"])
+            $this->assertProxyAvailable(
+                $proxy,
+                sprintf("Could not verify proxy '%s' being available", $proxy["name"])
             );
         });
     }

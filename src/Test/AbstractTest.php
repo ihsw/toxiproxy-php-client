@@ -48,6 +48,18 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $callback($proxy);
     }
 
+    protected function assertProxyAvailable(Proxy $proxy, $message = "")
+    {
+        list($ip, $port) = explode(":", $proxy["listen"]);
+        $this->assertTrue($this->canConnect($ip, $port), $message);
+    }
+
+    protected function assertProxyUnavailable(Proxy $proxy, $message = "")
+    {
+        list($ip, $port) = explode(":", $proxy["listen"]);
+        $this->assertFalse($this->canConnect($ip, $port), $message);
+    }
+
     protected function canConnect($ip, $port)
     {
         // misc
