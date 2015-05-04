@@ -71,7 +71,7 @@ class ToxiproxyTest extends AbstractTest
                 sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
                     self::TEST_NAME,
                     self::TEST_UPSTREAM,
-                    self::TEST_NAME,
+                    self::TEST_LISTEN,
                     $proxy->getHttpResponse()->getBody()
                 )
             );
