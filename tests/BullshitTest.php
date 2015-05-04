@@ -11,9 +11,7 @@ class BullshitTest extends \PHPUnit_Framework_TestCase
     {
         $client = new Client(["base_url" => "http://www.test.com"]);
 
-        $mock = new Mock([
-            new Response(200, [], Stream::factory("Hello, world!"))
-        ]);
+        $mock = new Mock([new Response(200, [], Stream::factory("Hello, world!"))]);
         $client->getEmitter()->attach($mock);
 
         $response = $client->get("/");
