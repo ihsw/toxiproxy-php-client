@@ -1,7 +1,7 @@
 <?php
 
-use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Test\AbstractHttpTest,
+    Ihsw\Toxiproxy\Test\AbstractTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
@@ -10,9 +10,9 @@ class ProxyTest extends AbstractHttpTest
     /**
      * @expectedException Ihsw\Toxiproxy\Exception\InvalidToxicException
      */
-    public function testUpdateInvalidToxic()
+    public function ttestUpdateInvalidToxic()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy([], function(Proxy $proxy) {
             $response = $proxy->updateDownstream("fdsfgs", []);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -22,9 +22,16 @@ class ProxyTest extends AbstractHttpTest
         });
     }
 
-    public function testDisable($callback = null)
+    public function testDisable(array $responses = [], $callback = null)
     {
-        $this->handleProxy(function(Proxy $proxy) use($callback) {
+        $responses = array_merge([
+            self::httpResponseFactory(
+                Toxiproxy::OK,
+                self::getTestResponse("disable-proxy.json", [self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN])
+            )
+        ], $responses);
+
+        $this->handleProxy($responses, function(Proxy $proxy) use($callback) {
             $response = $proxy->disable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -43,9 +50,9 @@ class ProxyTest extends AbstractHttpTest
         });
     }
 
-    public function testEnable()
+    public function ttestEnable()
     {
-        $this->testDisable(function(Proxy $proxy) {
+        $this->testDisable([], function(Proxy $proxy) {
             $response = $proxy->enable();
             $this->assertEquals(
                 $response->getStatusCode(),

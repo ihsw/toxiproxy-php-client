@@ -10,21 +10,19 @@ use Ihsw\Toxiproxy\Test\AbstractTest,
 
 abstract class AbstractHttpTest extends AbstractTest
 {
-    // public function tearDown() {}
+    public function tearDown() {}
 
-    protected static function mockHttpClientFactory(array $contentList = [])
+    protected static function mockHttpClientFactory(array $responses)
     {
         $httpClient = self::httpClientFactory();
-        $mock = new HttpMock(array_map(function($content) {
-            $content = array_merge(["statusCode" => -1, "headers" => [], "body" => ""], $content);
-            return new HttpResponse(
-                $content["statusCode"],
-                $content["headers"],
-                HttpStream::factory($content["body"]
-            ));
-        }, $contentList));
+        $mock = new HttpMock($responses);
         $httpClient->getEmitter()->attach($mock);
         return $httpClient;
+    }
+
+    protected static function httpResponseFactory($statusCode, $body, array $headers = [])
+    {
+        return new HttpResponse($statusCode, $headers, HttpStream::factory($body));
     }
 
     protected static function getTestResponse($filename, $params)
@@ -32,18 +30,15 @@ abstract class AbstractHttpTest extends AbstractTest
         return vsprintf(file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename)), $params);
     }
 
-    protected function handleProxy(\Closure $callback)
+    protected function handleProxy($responses, \Closure $callback)
     {
-        $httpClient = self::mockHttpClientFactory([
-            [
-                "statusCode" => Toxiproxy::CREATED,
-                "body" => self::getTestResponse(
-                    "create-proxy.json",
-                    [self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN]
-                )
-            ]
-        ]);
-        $httpClient = self::httpClientFactory();
+        $responses = array_merge([
+            self::httpResponseFactory(
+                Toxiproxy::CREATED,
+                self::getTestResponse("create-proxy.json", [self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN])
+            )
+        ], $responses);
+        $httpClient = self::mockHttpClientFactory($responses);
         $toxiproxy = new Toxiproxy($httpClient);
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
