@@ -1,21 +1,38 @@
 <?php
 
-use GuzzleHttp\Subscriber\Mock,
-    GuzzleHttp\Client,
-    GuzzleHttp\Stream\Stream,
-    GuzzleHttp\Message\Response;
+use React\EventLoop\StreamSelectLoop,
+    React\Socket\Server,
+    React\SocketClient\Connector;
 
 class BullshitTest extends \PHPUnit_Framework_TestCase
 {
-    public function testBullshit()
+    private function createResolverMock()
     {
-        $client = new Client(["base_url" => "http://www.test.com"]);
+        return $this->getMockBuilder("React\Dns\Resolver\Resolver")
+                    ->disableOriginalConstructor()
+                    ->getMock();
+    }
 
-        $mock = new Mock([new Response(200, [], Stream::factory("Hello, world!"))]);
-        $client->getEmitter()->attach($mock);
+    /** @test */
+    public function connectionToTcpServerShouldSucceed()
+    {
+        // starting up a server
+        $loop = new StreamSelectLoop();
+        $server = new Server($loop);
+        $server->on("connection", function () use ($server, $loop) {
+            $server->shutdown();
+        });
+        $server->listen(9999);
 
-        $response = $client->get("/");
-        $this->assertEquals($response->getStatusCode(), 200);
-        $this->assertEquals($response->getBody(), "Hello, world!");
+        // hooking the client up to the server
+        $capturedStream = null;
+        $connector = new Connector($loop, $this->createResolverMock());
+        $connector->create("127.0.0.1", 9999)->then(function ($stream) use (&$capturedStream) {
+            $capturedStream = $stream;
+            $stream->end();
+        });
+        $loop->run();
+
+        $this->assertInstanceOf("React\Stream\Stream", $capturedStream);
     }
 }
