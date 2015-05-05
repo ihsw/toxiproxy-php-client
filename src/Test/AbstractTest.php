@@ -16,9 +16,14 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     const TEST_LISTEN = "127.0.0.1:34343";
     const TEST_BASE_URL = "http://127.0.0.1:8474";
 
+    protected static function httpClientFactory()
+    {
+        return new HttpClient(["base_url" => self::TEST_BASE_URL]);
+    }
+
     public function tearDown()
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
         if ($toxiproxy->exists(self::TEST_NAME)) {
             $toxiproxy->delete($toxiproxy->get(self::TEST_NAME));
         }
@@ -26,7 +31,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     protected function handleProxy(\Closure $callback)
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
         $this->assertTrue(
             $toxiproxy->getHttpClient() instanceof HttpClient,
             "Toxiproxy http-client was not an instance of HttpClient"
@@ -51,16 +56,16 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     protected function assertProxyAvailable(Proxy $proxy, $message = "")
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertTrue($this->canConnect($ip, $port), $message);
+        $this->assertTrue(self::canConnect($ip, $port), $message);
     }
 
     protected function assertProxyUnavailable(Proxy $proxy, $message = "")
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertFalse($this->canConnect($ip, $port), $message);
+        $this->assertFalse(self::canConnect($ip, $port), $message);
     }
 
-    protected function canConnect($ip, $port)
+    protected static function canConnect($ip, $port)
     {
         // misc
         $loop = EventLoopFactory::create();

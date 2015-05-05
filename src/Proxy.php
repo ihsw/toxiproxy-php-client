@@ -16,7 +16,7 @@ class Proxy implements \ArrayAccess
      * @param array
      * @param HttpResponse|null
      */
-    public function __construct(Toxiproxy $toxiproxy, $content, HttpResponse $httpResponse = null)
+    public function __construct(Toxiproxy $toxiproxy, array $content, HttpResponse $httpResponse = null)
     {
         $this->toxiproxy = $toxiproxy;
         $this->content = $content;

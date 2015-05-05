@@ -2,9 +2,10 @@
 
 require("./vendor/autoload.php");
 
+use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Toxiproxy;
 
-$toxiproxy = new Toxiproxy("http://127.0.0.1:8474");
+$toxiproxy = new Toxiproxy(new HttpClient(["base_url" => "http://127.0.0.1:8474"]));
 $proxies = array_filter($toxiproxy->all(), function($proxy) {
     return strlen($proxy["name"]) > 0;
 });

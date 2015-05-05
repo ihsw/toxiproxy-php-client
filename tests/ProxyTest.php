@@ -1,11 +1,11 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class ProxyTest extends AbstractTest
+class ProxyTest extends AbstractHttpTest
 {
     /**
      * @expectedException Ihsw\Toxiproxy\Exception\InvalidToxicException

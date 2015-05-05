@@ -11,39 +11,26 @@ class ToxiproxyTest extends AbstractTest
 {
     const NONEXISTENT_TEST_NAME = "ihsw_test_redis_nonexist";
 
-    public function testGetHttpClient(\Closure $callback = null)
+    public function testCreate($callback = null)
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
-        $this->assertTrue(
-            $toxiproxy->getHttpClient() instanceof HttpClient,
-            "Toxiproxy http-client was not an instance of HttpClient"
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+
+        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
+        $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
+        $this->assertEquals(
+            $proxy->getHttpResponse()->getStatusCode(),
+            Toxiproxy::CREATED,
+            sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
+                self::TEST_NAME,
+                self::TEST_UPSTREAM,
+                self::TEST_LISTEN,
+                $proxy->getHttpResponse()->getBody()
+            )
         );
 
         if (!is_null($callback)) {
-            $callback($toxiproxy);
+            $callback($toxiproxy, $proxy);
         }
-    }
-
-    public function testCreate($callback = null)
-    {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) use($callback) {
-            $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
-            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-            $this->assertEquals(
-                $proxy->getHttpResponse()->getStatusCode(),
-                Toxiproxy::CREATED,
-                sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
-                    self::TEST_NAME,
-                    self::TEST_UPSTREAM,
-                    self::TEST_LISTEN,
-                    $proxy->getHttpResponse()->getBody()
-                )
-            );
-
-            if (!is_null($callback)) {
-                $callback($toxiproxy, $proxy);
-            }
-        });
     }
 
     public function testAll()
@@ -61,21 +48,21 @@ class ToxiproxyTest extends AbstractTest
 
     public function testCreateArrayAccess()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
-            $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
-            $proxy = $toxiproxy[self::TEST_NAME];
-            $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-            $this->assertEquals(
-                $proxy->getHttpResponse()->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
-                    self::TEST_NAME,
-                    self::TEST_UPSTREAM,
-                    self::TEST_LISTEN,
-                    $proxy->getHttpResponse()->getBody()
-                )
-            );
-        });
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+
+        $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
+        $proxy = $toxiproxy[self::TEST_NAME];
+        $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
+        $this->assertEquals(
+            $proxy->getHttpResponse()->getStatusCode(),
+            Toxiproxy::OK,
+            sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
+                self::TEST_NAME,
+                self::TEST_UPSTREAM,
+                self::TEST_LISTEN,
+                $proxy->getHttpResponse()->getBody()
+            )
+        );
     }
 
     /**
@@ -119,16 +106,14 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testGetNonexist()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
-            $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
-        });
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
     }
 
     public function testGetNonexistArrayAccess()
     {
-        $this->testGetHttpClient(function(Toxiproxy $toxiproxy) {
-            $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
-        });
+        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
     }
 
     public function testDelete()
