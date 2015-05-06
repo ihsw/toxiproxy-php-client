@@ -1,7 +1,6 @@
 <?php
 
 use Ihsw\Toxiproxy\Test\AbstractHttpTest,
-    Ihsw\Toxiproxy\Test\AbstractTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
