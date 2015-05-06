@@ -37,7 +37,7 @@ abstract class AbstractHttpTest extends AbstractTest
 
     protected static function createProxyResponse($name, $listen, $upstream)
     {
-        return self::httpTestResponseFactory(Toxiproxy::CREATED, "create-proxy.json", [$name, $listen, $upstream]);
+        return self::httpTestResponseFactory(Toxiproxy::CREATED, "get-proxy.json", [$name, $listen, $upstream]);
     }
 
     protected static function getProxyResponse($name, $listen, $upstream)
@@ -57,7 +57,7 @@ abstract class AbstractHttpTest extends AbstractTest
 
     protected static function enableProxyResponse($name, $upstream, $listen)
     {
-        return self::httpTestResponseFactory(Toxiproxy::OK, "enable-proxy.json", [$name, $listen, $upstream]);
+        return self::httpTestResponseFactory(Toxiproxy::OK, "get-proxy.json", [$name, $listen, $upstream]);
     }
 
     protected function handleProxy($responses, \Closure $callback)
