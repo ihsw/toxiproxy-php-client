@@ -25,14 +25,12 @@ abstract class AbstractHttpTest extends AbstractTest
         return new HttpResponse($statusCode, $headers, HttpStream::factory($body));
     }
 
-    protected static function getTestResponse($filename, $params)
-    {
-        return vsprintf(file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename)), $params);
-    }
-
     protected static function httpTestResponseFactory($statusCode, $filename, array $params)
     {
-        return self::httpResponseFactory($statusCode, self::getTestResponse($filename, $params));
+        return self::httpResponseFactory(
+            $statusCode,
+            vsprintf(file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename)), $params)
+        );
     }
 
     protected static function createProxyResponse($name, $listen, $upstream)
