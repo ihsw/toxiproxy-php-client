@@ -1,10 +1,7 @@
 <?php
 
-use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException,
     Ihsw\Toxiproxy\Proxy;
 
 class ToxiproxyHttpTest extends AbstractHttpTest

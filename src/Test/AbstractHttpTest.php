@@ -4,7 +4,8 @@ use GuzzleHttp\Subscriber\Mock as HttpMock,
     GuzzleHttp\Stream\Stream as HttpStream,
     GuzzleHttp\Message\Response as HttpResponse;
 use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy;
+    Ihsw\Toxiproxy\Toxiproxy,
+    Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractHttpTest extends AbstractTest
 {
@@ -65,7 +66,7 @@ abstract class AbstractHttpTest extends AbstractTest
         $toxiproxy = new Toxiproxy($httpClient);
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
-        $this->assertInstance("Ihsw\Toxiproxy\Proxy", "Create proxy was not an instance of Proxy");
+        $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
         $this->assertEquals(
             $proxy->getHttpResponse()->getStatusCode(),
             Toxiproxy::CREATED,
