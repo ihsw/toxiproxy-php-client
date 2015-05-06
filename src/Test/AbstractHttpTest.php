@@ -30,13 +30,40 @@ abstract class AbstractHttpTest extends AbstractTest
         return vsprintf(file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename)), $params);
     }
 
+    protected static function httpTestResponseFactory($statusCode, $filename, array $params)
+    {
+        return self::httpResponseFactory($statusCode, self::getTestResponse($filename, $params));
+    }
+
+    protected static function createProxyResponse($name, $listen, $upstream)
+    {
+        return self::httpTestResponseFactory(Toxiproxy::CREATED, "create-proxy.json", [$name, $listen, $upstream]);
+    }
+
+    protected static function getProxyResponse($name, $listen, $upstream)
+    {
+        return self::httpTestResponseFactory(Toxiproxy::OK, "get-proxy.json", [$name, $listen, $upstream]);
+    }
+
+    protected static function getNonexistentProxyResponse($name)
+    {
+        return self::httpTestResponseFactory(Toxiproxy::NOT_FOUND, "get-nonexistent-proxy.json", [$name]);
+    }
+
+    protected static function disableProxyResponse($name, $upstream, $listen)
+    {
+        return self::httpTestResponseFactory(Toxiproxy::OK, "disable-proxy.json", [$name, $listen, $upstream]);
+    }
+
+    protected static function enableProxyResponse($name, $upstream, $listen)
+    {
+        return self::httpTestResponseFactory(Toxiproxy::OK, "enable-proxy.json", [$name, $listen, $upstream]);
+    }
+
     protected function handleProxy($responses, \Closure $callback)
     {
         $responses = array_merge([
-            self::httpResponseFactory(
-                Toxiproxy::CREATED,
-                self::getTestResponse("create-proxy.json", [self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN])
-            )
+            self::createProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)
         ], $responses);
         $httpClient = self::mockHttpClientFactory($responses);
         $toxiproxy = new Toxiproxy($httpClient);

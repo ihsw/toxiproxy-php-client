@@ -18,13 +18,10 @@ class ProxyHttpTest extends AbstractHttpTest
 
     public function testDisable(array $responses = [], $callback = null)
     {
-        $responses = array_merge([
-            self::httpResponseFactory(
-                Toxiproxy::OK,
-                self::getTestResponse("disable-proxy.json", [self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN])
-            )
-        ], $responses);
-
+        $responses = array_merge(
+            [self::disableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)],
+            $responses
+        );
         $this->handleProxy($responses, function(Proxy $proxy) use($callback) {
             $response = $proxy->disable();
             $this->assertEquals(
@@ -46,7 +43,8 @@ class ProxyHttpTest extends AbstractHttpTest
 
     public function testEnable()
     {
-        $this->testDisable([], function(Proxy $proxy) {
+        $responses = [self::enableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)];
+        $this->testDisable($responses, function(Proxy $proxy) {
             $response = $proxy->enable();
             $this->assertEquals(
                 $response->getStatusCode(),

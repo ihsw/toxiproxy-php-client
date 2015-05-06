@@ -1,0 +1,8 @@
+{
+  "%s": {
+    "name": "%s",
+    "listen": "%s",
+    "upstream": "%s",
+    "enabled": true
+  }
+}
