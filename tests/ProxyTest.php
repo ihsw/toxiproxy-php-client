@@ -1,29 +1,28 @@
 <?php
 
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class ProxyTest extends AbstractTest
+class ProxyTest extends AbstractHttpTest
 {
     /**
      * @expectedException Ihsw\Toxiproxy\Exception\InvalidToxicException
      */
     public function testUpdateInvalidToxic()
     {
-        $this->handleProxy(function(Proxy $proxy) {
-            $response = $proxy->updateDownstream("fdsfgs", []);
-            $this->assertEquals(
-                $response->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not update downstream fdsfgs toxic for proxy '%s'", $proxy["name"])
-            );
+        $this->handleProxy([], function(Proxy $proxy) {
+            $proxy->updateDownstream("fdsfgs", []);
         });
     }
 
-    public function testDisable($callback = null)
+    public function testDisable(array $responses = [], $callback = null)
     {
-        $this->handleProxy(function(Proxy $proxy) use($callback) {
+        $responses = array_merge(
+            [self::disableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)],
+            $responses
+        );
+        $this->handleProxy($responses, function(Proxy $proxy) use($callback) {
             $response = $proxy->disable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -44,7 +43,8 @@ class ProxyTest extends AbstractTest
 
     public function testEnable()
     {
-        $this->testDisable(function(Proxy $proxy) {
+        $responses = [self::enableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)];
+        $this->testDisable($responses, function(Proxy $proxy) {
             $response = $proxy->enable();
             $this->assertEquals(
                 $response->getStatusCode(),

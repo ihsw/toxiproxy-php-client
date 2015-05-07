@@ -1,19 +1,20 @@
 <?php
 
-use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException,
     Ihsw\Toxiproxy\Proxy;
 
-class ToxiproxyTest extends AbstractTest
+class ToxiproxyTest extends AbstractHttpTest
 {
     const NONEXISTENT_TEST_NAME = "ihsw_test_redis_nonexist";
 
-    public function testCreate($callback = null)
+    public function testCreate(array $responses = [], $callback = null)
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $responses = array_merge(
+            [self::createProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)],
+            $responses
+        );
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory($responses));
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
@@ -35,7 +36,15 @@ class ToxiproxyTest extends AbstractTest
 
     public function testAll()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy) {
+        $responses = [
+            self::httpTestResponseFactory(
+                Toxiproxy::CREATED,
+                "all.json",
+                [self::TEST_NAME, self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM]
+            )
+        ];
+
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy) {
             $result = array_reduce($toxiproxy->all(), function($result, $proxy) {
                 if (!$proxy) {
                     return $proxy;
@@ -48,7 +57,11 @@ class ToxiproxyTest extends AbstractTest
 
     public function testCreateArrayAccess()
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $responses = [
+            self::createProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN),
+            self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)
+        ];
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory($responses));
 
         $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
         $proxy = $toxiproxy[self::TEST_NAME];
@@ -70,14 +83,22 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testCreateDuplicate()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $responses = [
+            self::httpTestResponseFactory(
+                Toxiproxy::CONFLICT,
+                "get-proxy.json",
+                [self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM]
+            )
+        ];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $toxiproxy->create($proxy["name"], $proxy["upstream"], $proxy["listen"]);
         });
     }
 
     public function testGet()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy->get($proxy["name"]);
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -90,7 +111,8 @@ class ToxiproxyTest extends AbstractTest
 
     public function testGetArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy[$proxy["name"]];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
             $this->assertEquals(
@@ -106,19 +128,24 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testGetNonexist()
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
+            [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
+        ));
         $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
     }
 
     public function testGetNonexistArrayAccess()
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
+            [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
+        ));
         $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
     }
 
     public function testDelete()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $responses = [self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -130,7 +157,8 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDeleteArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $responses = [self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy["name"], $toxiproxy),
@@ -141,19 +169,22 @@ class ToxiproxyTest extends AbstractTest
 
     public function testReset()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
-            $response = $proxy->updateDownstream("latency", ["enabled" => true, "latency" => 1000]);
-            $this->assertEquals(
-                $response->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+        $responses = [
+            self::disableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN),
+            self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")
+        ];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+            $response = $proxy->disable();
+            $this->assertProxyUnavailable(
+                $proxy,
+                sprintf("Could not verify proxy '%s' being unavailable", $proxy["name"])
             );
 
-            $proxy->disable();
-            $this->assertProxyUnavailable($proxy);
-
             $toxiproxy->reset();
-            $this->assertProxyAvailable($proxy);
+            $this->assertProxyAvailable(
+                $proxy,
+                sprintf("Could not verify proxy '%s' being available", $proxy["name"])
+            );
         });
     }
 }
