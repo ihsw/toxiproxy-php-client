@@ -1,38 +1,47 @@
 <?php
 
-use React\EventLoop\StreamSelectLoop,
-    React\Socket\Server,
-    React\SocketClient\Connector;
+use React\EventLoop\Factory as EventLoopFactory,
+    React\Dns\Resolver\Factory as DnsResolverFactory,
+    React\Socket\Server as SocketServer,
+    React\SocketClient\Connector as SocketConnector,
+    React\SocketClient\ConnectionException as SocketConnectionException,
+    React\Stream\Stream as SocketStream;
 
 class BullshitTest extends \PHPUnit_Framework_TestCase
 {
-    private function createResolverMock()
+    public function testBullshit()
     {
-        return $this->getMockBuilder("React\Dns\Resolver\Resolver")
-                    ->disableOriginalConstructor()
-                    ->getMock();
-    }
+        // misc
+        $ip = "127.0.0.1";
+        $port = 43434;
 
-    /** @test */
-    public function connectionToTcpServerShouldSucceed()
-    {
-        // starting up a server
-        $loop = new StreamSelectLoop();
-        $server = new Server($loop);
-        $server->on("connection", function () use ($server, $loop) {
-            $server->shutdown();
+        // server setup
+        $serverLoop = EventLoopFactory::create();
+        $server = new SocketServer($serverLoop);
+        $server->listen($port);
+
+        // client setup
+        $clientLoop = EventLoopFactory::create();
+        $dnsResolverFactory = new DnsResolverFactory();
+        $dns = $dnsResolverFactory->createCached("8.8.8.8", $clientLoop); // dunno why dns is required for this shit
+        $connector = new SocketConnector($clientLoop, $dns);
+        $promise = $connector->create($ip, $port)->then(function (SocketStream $stream) {
+            $stream->close();
+            return true;
+        }, function(SocketConnectionException $e) {
+            return false;
         });
-        $server->listen(9999);
+        $clientLoop->run();
 
-        // hooking the client up to the server
-        $capturedStream = null;
-        $connector = new Connector($loop, $this->createResolverMock());
-        $connector->create("127.0.0.1", 9999)->then(function ($stream) use (&$capturedStream) {
-            $capturedStream = $stream;
-            $stream->end();
+        // catching the output
+        $out = null;
+        $promise->done(function($v) use(&$out) {
+            $out = $v;
         });
-        $loop->run();
 
-        $this->assertInstanceOf("React\Stream\Stream", $capturedStream);
+        // cleanup
+        $server->shutdown();
+
+        $this->assertTrue($out, sprintf("Could not verify connection to %s", $port));
     }
 }
