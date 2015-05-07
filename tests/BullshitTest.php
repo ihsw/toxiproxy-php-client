@@ -17,7 +17,7 @@ class BullshitTest extends AbstractTest
             "port" => 44444,
             "startServer" => true
         ];
-        $this->assertCanConnect($options, "Could not verify starting 127.0.0.1:44444 and being available");
+        $this->assertConnection($options, "Could not verify starting 127.0.0.1:44444 and being available");
     }
 
     public function testCanConnect()
@@ -27,7 +27,7 @@ class BullshitTest extends AbstractTest
             "port" => 44445,
             "startServer" => false
         ];
-        $this->assertCanConnect($options, "Could not verify 127.0.0.1:44445 being available");
+        $this->assertConnection($options, "Could not verify 127.0.0.1:44445 being available");
     }
 
     public function testCannotConnect()
@@ -38,6 +38,6 @@ class BullshitTest extends AbstractTest
             "startServer" => false,
             "match" => false
         ];
-        $this->assertCanConnect($options, "Could not verify 127.0.0.1:44446 being unavailable");
+        $this->assertConnection($options, "Could not verify 127.0.0.1:44446 being unavailable");
     }
 }

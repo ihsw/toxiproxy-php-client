@@ -84,12 +84,12 @@ abstract class AbstractHttpTest extends AbstractTest
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertCanConnect(["ip" => $ip, "port" => $port, "startServer" => true], $message);
+        $this->assertConnection(["ip" => $ip, "port" => $port, "startServer" => true], $message);
     }
 
     protected function assertProxyUnavailable(Proxy $proxy, $message = null)
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertCanConnect(["ip" => $ip, "port" => $port, "startServer" => true, "match" => false], $message);
+        $this->assertConnection(["ip" => $ip, "port" => $port, "startServer" => false, "match" => false], $message);
     }
 }
