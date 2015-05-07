@@ -11,6 +11,9 @@ abstract class AbstractHttpTest extends AbstractTest
 {
     public function tearDown() {}
 
+    /**
+     * various factories
+     */
     protected static function mockHttpClientFactory(array $responses)
     {
         $httpClient = self::httpClientFactory();
@@ -32,6 +35,9 @@ abstract class AbstractHttpTest extends AbstractTest
         );
     }
 
+    /**
+     * http response templates
+     */
     protected static function createProxyResponse($name, $listen, $upstream)
     {
         return self::httpTestResponseFactory(Toxiproxy::CREATED, "get-proxy.json", [$name, $listen, $upstream]);
@@ -57,6 +63,9 @@ abstract class AbstractHttpTest extends AbstractTest
         return self::httpTestResponseFactory(Toxiproxy::OK, "get-proxy.json", [$name, $listen, $upstream]);
     }
 
+    /**
+     * overriding for explicit http mocking
+     */
     protected function handleProxy($responses, \Closure $callback)
     {
         $responses = array_merge([
