@@ -11,12 +11,13 @@ use React\EventLoop\Factory as EventLoopFactory,
 
 // misc
 $ip = "127.0.0.1";
-$port = 43434;
+$port = 44445;
 
 // server setup
 $serverLoop = EventLoopFactory::create();
 $server = new Server($serverLoop);
 $server->listen($port);
+$serverLoop->run();
 
 // client setup
 $clientLoop = EventLoopFactory::create();
