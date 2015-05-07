@@ -56,16 +56,16 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     protected function assertProxyAvailable(Proxy $proxy, $message = "")
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertTrue(self::canConnect($ip, $port), $message);
+        $this->assertTrue($this->canConnect($ip, $port), $message);
     }
 
     protected function assertProxyUnavailable(Proxy $proxy, $message = "")
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertFalse(self::canConnect($ip, $port), $message);
+        $this->assertFalse($this->canConnect($ip, $port), $message);
     }
 
-    protected static function canConnect($ip, $port)
+    protected function canConnect($ip, $port)
     {
         // misc
         $loop = EventLoopFactory::create();
