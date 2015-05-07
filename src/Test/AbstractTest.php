@@ -3,9 +3,10 @@
 use GuzzleHttp\Client as HttpClient;
 use React\EventLoop\Factory as EventLoopFactory,
     React\Dns\Resolver\Factory as DnsResolverFactory,
-    React\SocketClient\Connector as ClientConnector,
-    React\SocketClient\ConnectionException,
-    React\Stream\Stream;
+    React\Socket\Server as SocketServer,
+    React\SocketClient\Connector as SocketConnector,
+    React\SocketClient\ConnectionException as SocketConnectionException,
+    React\Stream\Stream as SocketStream;
 use Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
@@ -53,36 +54,46 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $callback($proxy);
     }
 
-    protected function assertProxyAvailable(Proxy $proxy, $message = "")
+    protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertTrue($this->canConnect($ip, $port), $message);
+        $this->assertCanConnect(["ip" => $ip, "port" => $port], $message);
     }
 
-    protected function assertProxyUnavailable(Proxy $proxy, $message = "")
+    protected function assertProxyUnavailable(Proxy $proxy, $message = null)
     {
         list($ip, $port) = explode(":", $proxy["listen"]);
-        $this->assertFalse($this->canConnect($ip, $port), $message);
+        $this->assertCanConnect(["ip" => $ip, "port" => $port, "match" => false], $message);
     }
 
-    protected function canConnect($ip, $port)
+    public function assertCanConnect(array $options, $message = null)
     {
-        // misc
-        $loop = EventLoopFactory::create();
+        $settings = array_merge([
+            "ip" => "0.0.0.0",
+            "port" => 0,
+            "startServer" => false,
+            "match" => true
+        ], $options);
+
+        // optionally starting server
+        if ($settings["startServer"]) {
+            $serverLoop = EventLoopFactory::create();
+            $server = new SocketServer($serverLoop);
+            $server->listen($settings["port"]);
+        }
+
+        // client setup
+        $clientLoop = EventLoopFactory::create();
         $dnsResolverFactory = new DnsResolverFactory();
-        $dns = $dnsResolverFactory->createCached("8.8.8.8", $loop); // dunno why dns is required for this shit
-        $connector = new ClientConnector($loop, $dns);
-
-        // socket loop definition
-        $promise = $connector->create($ip, $port)->then(function (Stream $stream) {
+        $dns = $dnsResolverFactory->createCached("8.8.8.8", $clientLoop); // dunno why dns is required for this shit
+        $connector = new SocketConnector($clientLoop, $dns);
+        $promise = $connector->create($settings["ip"], $settings["port"])->then(function (SocketStream $stream) {
             $stream->close();
             return true;
-        }, function(ConnectionException $e) {
+        }, function(SocketConnectionException $e) {
             return false;
         });
-
-        // starting it up
-        $loop->run();
+        $clientLoop->run();
 
         // catching the output
         $out = null;
@@ -90,6 +101,11 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
             $out = $v;
         });
 
-        return $out;
+        // optionally cleaning up the server
+        if ($settings["startServer"]) {
+            $server->shutdown();
+        }
+
+        $this->assertEquals($out, $settings["match"], $message);
     }
 }

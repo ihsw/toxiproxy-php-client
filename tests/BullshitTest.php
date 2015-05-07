@@ -1,5 +1,6 @@
 <?php
 
+use Ihsw\Toxiproxy\Test\AbstractTest;
 use React\EventLoop\Factory as EventLoopFactory,
     React\Dns\Resolver\Factory as DnsResolverFactory,
     React\Socket\Server as SocketServer,
@@ -7,41 +8,36 @@ use React\EventLoop\Factory as EventLoopFactory,
     React\SocketClient\ConnectionException as SocketConnectionException,
     React\Stream\Stream as SocketStream;
 
-class BullshitTest extends \PHPUnit_Framework_TestCase
+class BullshitTest extends AbstractTest
 {
-    public function testBullshit()
+    public function testStartAndConnect()
     {
-        // misc
-        $ip = "127.0.0.1";
-        $port = 43434;
+        $options = [
+            "ip" => "127.0.0.1",
+            "port" => 44444,
+            "startServer" => true
+        ];
+        $this->assertCanConnect($options, "Could not verify starting 127.0.0.1:44444 and being available");
+    }
 
-        // server setup
-        $serverLoop = EventLoopFactory::create();
-        $server = new SocketServer($serverLoop);
-        $server->listen($port);
+    public function testCanConnect()
+    {
+        $options = [
+            "ip" => "127.0.0.1",
+            "port" => 44445,
+            "startServer" => false
+        ];
+        $this->assertCanConnect($options, "Could not verify 127.0.0.1:44445 being available");
+    }
 
-        // client setup
-        $clientLoop = EventLoopFactory::create();
-        $dnsResolverFactory = new DnsResolverFactory();
-        $dns = $dnsResolverFactory->createCached("8.8.8.8", $clientLoop); // dunno why dns is required for this shit
-        $connector = new SocketConnector($clientLoop, $dns);
-        $promise = $connector->create($ip, $port)->then(function (SocketStream $stream) {
-            $stream->close();
-            return true;
-        }, function(SocketConnectionException $e) {
-            return false;
-        });
-        $clientLoop->run();
-
-        // catching the output
-        $out = null;
-        $promise->done(function($v) use(&$out) {
-            $out = $v;
-        });
-
-        // cleanup
-        $server->shutdown();
-
-        $this->assertTrue($out, sprintf("Could not verify connection to %s", $port));
+    public function testCannotConnect()
+    {
+        $options = [
+            "ip" => "127.0.0.1",
+            "port" => 44446,
+            "startServer" => false,
+            "match" => false
+        ];
+        $this->assertCanConnect($options, "Could not verify 127.0.0.1:44446 being unavailable");
     }
 }
