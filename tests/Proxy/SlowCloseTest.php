@@ -9,7 +9,7 @@ class JitterTest extends AbstractHttpTest
 {
     public function testUpdateSlowCloseDownstream()
     {
-        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-slow-close-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateDownstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
@@ -22,7 +22,7 @@ class JitterTest extends AbstractHttpTest
 
     public function testUpdateSlowCloseUpstream()
     {
-        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-slow-close-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateUpstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
