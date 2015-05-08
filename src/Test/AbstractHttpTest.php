@@ -30,7 +30,7 @@ abstract class AbstractHttpTest extends AbstractTest
     protected static function httpTestResponseFactory($statusCode, $filename, array $params = [])
     {
         $contents = file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename));
-        if (count($params) === 0) {
+        if (count($params) > 0) {
             $contents = vsprintf($contents, $params);
         }
 
