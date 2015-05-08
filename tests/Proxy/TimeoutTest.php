@@ -1,15 +1,16 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class TimeoutTest extends AbstractTest
+class TimeoutTest extends AbstractHttpTest
 {
     public function testUpdateTimeoutDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-timeout-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateDownstream("timeout", ["timeout" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -21,7 +22,8 @@ class TimeoutTest extends AbstractTest
 
     public function testUpdateTimeoutUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-timeout-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateUpstream("timeout", ["timeout" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
