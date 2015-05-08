@@ -1,15 +1,16 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class JitterTest extends AbstractTest
+class JitterTest extends AbstractHttpTest
 {
     public function testUpdateSlowCloseDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateDownstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -21,7 +22,8 @@ class JitterTest extends AbstractTest
 
     public function testUpdateSlowCloseUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateUpstream("slow_close", ["delay" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),
