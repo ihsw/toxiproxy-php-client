@@ -27,12 +27,14 @@ abstract class AbstractHttpTest extends AbstractTest
         return new HttpResponse($statusCode, $headers, HttpStream::factory($body));
     }
 
-    protected static function httpTestResponseFactory($statusCode, $filename, array $params)
+    protected static function httpTestResponseFactory($statusCode, $filename, array $params = [])
     {
-        return self::httpResponseFactory(
-            $statusCode,
-            vsprintf(file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename)), $params)
-        );
+        $contents = file_get_contents(sprintf("%s/tests/test-responses/%s", getcwd(), $filename));
+        if (count($params) === 0) {
+            $contents = vsprintf($contents, $params);
+        }
+
+        return self::httpResponseFactory($statusCode, $contents);
     }
 
     /**

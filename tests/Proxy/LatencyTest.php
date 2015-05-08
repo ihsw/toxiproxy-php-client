@@ -1,15 +1,16 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
+use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class LatencyTest extends AbstractTest
+class LatencyTest extends AbstractHttpTest
 {
     public function testUpdateLatencyDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["latency" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -21,7 +22,8 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateLatencyUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["latency" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -33,7 +35,8 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateJitterDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -45,7 +48,8 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateJitterUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
