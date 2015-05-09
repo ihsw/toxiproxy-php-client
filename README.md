@@ -10,16 +10,22 @@ Installing via Composer
 
 The recommended way to install `toxiproxy-php-client` is through [Composer](http://getcomposer.org/).
 
-    # Install Composer
-    curl -sS https://getcomposer.org/installer | php
+```bash
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+```
 
 Next, run the Composer command to install the latest stable version of `toxiproxy-php-client`:
 
-    composer.phar require ihsw/toxiproxy-php-client
+```bash
+composer.phar require ihsw/toxiproxy-php-client
+````
 
 After installing, you need to require Composer's autoloader:
 
-    require 'vendor/autoload.php';
+```php
+require 'vendor/autoload.php';
+```
 
 Documentation
 -------------
