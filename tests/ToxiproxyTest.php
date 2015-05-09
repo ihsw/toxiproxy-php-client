@@ -123,15 +123,13 @@ class ToxiproxyTest extends AbstractHttpTest
         });
     }
 
-    /**
-     * @expectedException Ihsw\Toxiproxy\Exception\NotFoundException
-     */
     public function testGetNonexist()
     {
         $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
             [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
         ));
-        $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        $proxy = $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        $this->assertNull($proxy, "Non-existent proxy was expected to be null, was not null");
     }
 
     public function testGetNonexistArrayAccess()
@@ -139,7 +137,8 @@ class ToxiproxyTest extends AbstractHttpTest
         $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
             [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
         ));
-        $this->assertFalse(array_key_exists(self::NONEXISTENT_TEST_NAME, $toxiproxy));
+        $proxy = $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        $this->assertNull($proxy, "Non-existent proxy was expected to be null, was not null");
     }
 
     public function testDelete()

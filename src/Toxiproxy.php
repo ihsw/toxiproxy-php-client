@@ -108,7 +108,11 @@ class Toxiproxy implements \ArrayAccess
             $response = $this->httpClient->get(sprintf("/proxies/%s", $name));
             return new Proxy($this, json_decode($response->getBody(), true), $response);
         } catch (HttpClientException $e) {
-            $this->handleHttpClientException($e);
+            if ($e->getResponse()->getStatusCode() !== self::NOT_FOUND) {
+                $this->handleHttpClientException($e);
+            }
+
+            return null;
         }
     }
 
