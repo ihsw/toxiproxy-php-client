@@ -11,7 +11,8 @@ class ProxyTest extends AbstractHttpTest
      */
     public function testUpdateInvalidToxic()
     {
-        $this->handleProxy([], function(Proxy $proxy) {
+        $responses = [self::httpTestResponseFactory(Toxiproxy::BAD_REQUEST, "invalid-toxic.json")];
+        $this->handleProxy($responses, function(Proxy $proxy) {
             $proxy->updateDownstream("fdsfgs", []);
         });
     }
