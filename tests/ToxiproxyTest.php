@@ -84,6 +84,23 @@ class ToxiproxyTest extends AbstractHttpTest
         });
     }
 
+    public function testExists()
+    {
+        $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+            $exists = $toxiproxy->exists($proxy->getName());
+            $this->assertTrue($exists, "Exists was not true");
+        });
+    }
+
+    public function testNotExists()
+    {
+        $responses = [self::getNonexistentProxyResponse(self::TEST_NAME)];
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory($responses));
+        $exists = $toxiproxy->exists(self::NONEXISTENT_TEST_NAME);
+        $this->assertFalse($exists, "Exists was not false");
+    }
+
     public function testGetArrayAccess()
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];

@@ -76,12 +76,7 @@ class Toxiproxy implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        try {
-            $this->get($offset);
-            return true;
-        } catch (NotFoundException $e) {
-            return false;
-        }
+        return $this->exists($offset);
     }
 
     public function offsetSet($offset, $value)
@@ -149,7 +144,7 @@ class Toxiproxy implements \ArrayAccess
 
     public function exists($name)
     {
-        return $this->offsetExists($name);
+        return !is_null($this->get($name));
     }
 
     public function reset()
