@@ -124,7 +124,7 @@ class ToxiproxyTest extends AbstractHttpTest
         $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
             [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
         ));
-        $proxy = $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        $proxy = $toxiproxy[self::NONEXISTENT_TEST_NAME];
         $this->assertNull($proxy, "Non-existent proxy was expected to be null, was not null");
     }
 
