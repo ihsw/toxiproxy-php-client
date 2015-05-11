@@ -78,29 +78,19 @@ abstract class AbstractHttpTest extends AbstractTest
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-        $this->assertEquals(
-            $proxy->getHttpResponse()->getStatusCode(),
-            Toxiproxy::CREATED,
-            sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
-                self::TEST_NAME,
-                self::TEST_UPSTREAM,
-                self::TEST_NAME,
-                $proxy->getHttpResponse()->getBody()
-            )
-        );
 
         $callback($proxy);
     }
 
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy["listen"]);
+        list($ip, $port) = explode(":", $proxy->getListen());
         $this->assertConnection(["ip" => $ip, "port" => $port, "startServer" => true], $message);
     }
 
     protected function assertProxyUnavailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy["listen"]);
+        list($ip, $port) = explode(":", $proxy->getListen());
         $this->assertConnection(["ip" => $ip, "port" => $port, "startServer" => false, "match" => false], $message);
     }
 }

@@ -28,12 +28,12 @@ class ProxyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not disable proxy '%s': %s", $proxy["name"], $response->getBody())
+                sprintf("Could not disable proxy '%s': %s", $proxy->getName(), $response->getBody())
             );
 
             $this->assertProxyUnavailable(
                 $proxy,
-                sprintf("Could not verify proxy '%s' being unavailable", $proxy["name"])
+                sprintf("Could not verify proxy '%s' being unavailable", $proxy->getName())
             );
 
             if (!is_null($callback)) {
@@ -50,12 +50,12 @@ class ProxyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not enable proxy '%s': %s", $proxy["name"], $response->getBody())
+                sprintf("Could not enable proxy '%s': %s", $proxy->getName(), $response->getBody())
             );
 
             $this->assertProxyAvailable(
                 $proxy,
-                sprintf("Could not verify proxy '%s' being available", $proxy["name"])
+                sprintf("Could not verify proxy '%s' being available", $proxy->getName())
             );
         });
     }
