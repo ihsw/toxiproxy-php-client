@@ -71,7 +71,7 @@ class ToxiproxyTest extends AbstractHttpTest
             )
         ];
         $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
-            $toxiproxy->create($proxy->getName(), $proxy["upstream"], $proxy["listen"]);
+            $toxiproxy->create($proxy->getName(), $proxy->getUpstream(), $proxy->getListen());
         });
     }
 
