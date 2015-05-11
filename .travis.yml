@@ -11,6 +11,6 @@ before_script:
 
 script: phpunit
 
-whitelist:
+branches:
   only:
     - master
