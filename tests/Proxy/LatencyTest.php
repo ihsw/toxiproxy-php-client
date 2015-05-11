@@ -7,11 +7,11 @@ use Ihsw\Toxiproxy\Test\AbstractHttpTest,
 
 class LatencyTest extends AbstractHttpTest
 {
-    public function testUpdateLatencyDownstream()
+    public function testUpdateDownstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
-            $response = $proxy->updateDownstream("latency", ["latency" => 100]);
+            $response = $proxy->updateDownstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
@@ -20,37 +20,11 @@ class LatencyTest extends AbstractHttpTest
         });
     }
 
-    public function testUpdateLatencyUpstream()
+    public function testUpdateUpstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
-            $response = $proxy->updateUpstream("latency", ["latency" => 100]);
-            $this->assertEquals(
-                $response->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy->getName())
-            );
-        });
-    }
-
-    public function testUpdateJitterDownstream()
-    {
-        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
-        $this->handleProxy($responses, function(Proxy $proxy) {
-            $response = $proxy->updateDownstream("latency", ["jitter" => 100]);
-            $this->assertEquals(
-                $response->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy->getName())
-            );
-        });
-    }
-
-    public function testUpdateJitterUpstream()
-    {
-        $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
-        $this->handleProxy($responses, function(Proxy $proxy) {
-            $response = $proxy->updateUpstream("latency", ["jitter" => 100]);
+            $response = $proxy->updateUpstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,

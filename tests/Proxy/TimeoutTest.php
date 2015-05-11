@@ -7,7 +7,7 @@ use Ihsw\Toxiproxy\Test\AbstractHttpTest,
 
 class TimeoutTest extends AbstractHttpTest
 {
-    public function testUpdateTimeoutDownstream()
+    public function testUpdateDownstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-timeout-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
@@ -20,7 +20,7 @@ class TimeoutTest extends AbstractHttpTest
         });
     }
 
-    public function testUpdateTimeoutUpstream()
+    public function testUpdateUpstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-timeout-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {

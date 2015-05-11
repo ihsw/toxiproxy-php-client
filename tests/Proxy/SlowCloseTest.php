@@ -5,9 +5,9 @@ use Ihsw\Toxiproxy\Test\AbstractHttpTest,
     Ihsw\Toxiproxy\Toxiproxy,
     Ihsw\Toxiproxy\Proxy;
 
-class JitterTest extends AbstractHttpTest
+class SlowCloseTest extends AbstractHttpTest
 {
-    public function testUpdateSlowCloseDownstream()
+    public function testUpdateDownstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-slow-close-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
@@ -20,7 +20,7 @@ class JitterTest extends AbstractHttpTest
         });
     }
 
-    public function testUpdateSlowCloseUpstream()
+    public function testUpdateUpstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-slow-close-toxic.json")];
         $this->handleProxy($responses, function(Proxy $proxy) {
