@@ -18,16 +18,6 @@ class ToxiproxyTest extends AbstractHttpTest
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-        $this->assertEquals(
-            $proxy->getHttpResponse()->getStatusCode(),
-            Toxiproxy::CREATED,
-            sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
-                self::TEST_NAME,
-                self::TEST_UPSTREAM,
-                self::TEST_LISTEN,
-                $proxy->getHttpResponse()->getBody()
-            )
-        );
 
         if (!is_null($callback)) {
             $callback($toxiproxy, $proxy);
@@ -66,16 +56,6 @@ class ToxiproxyTest extends AbstractHttpTest
         $toxiproxy[self::TEST_NAME] = [self::TEST_UPSTREAM, self::TEST_LISTEN];
         $proxy = $toxiproxy[self::TEST_NAME];
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-        $this->assertEquals(
-            $proxy->getHttpResponse()->getStatusCode(),
-            Toxiproxy::OK,
-            sprintf("Could not create proxy '%s' from '%s' to '%s': %s",
-                self::TEST_NAME,
-                self::TEST_UPSTREAM,
-                self::TEST_LISTEN,
-                $proxy->getHttpResponse()->getBody()
-            )
-        );
     }
 
     /**
@@ -91,7 +71,7 @@ class ToxiproxyTest extends AbstractHttpTest
             )
         ];
         $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
-            $toxiproxy->create($proxy["name"], $proxy["upstream"], $proxy["listen"]);
+            $toxiproxy->create($proxy->getName(), $proxy->getUpstream(), $proxy->getListen());
         });
     }
 
@@ -99,27 +79,35 @@ class ToxiproxyTest extends AbstractHttpTest
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
         $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
-            $proxy = $toxiproxy->get($proxy["name"]);
+            $proxy = $toxiproxy->get($proxy->getName());
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-            $this->assertEquals(
-                $proxy->getHttpResponse()->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could find proxy '%s': %s", $proxy["name"], $proxy->getHttpResponse()->getBody())
-            );
         });
+    }
+
+    public function testExists()
+    {
+        $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
+        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+            $exists = $toxiproxy->exists($proxy->getName());
+            $this->assertTrue($exists, "Exists was not true");
+        });
+    }
+
+    public function testNotExists()
+    {
+        $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
+            [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
+        ));
+        $exists = $toxiproxy->exists(self::NONEXISTENT_TEST_NAME);
+        $this->assertFalse($exists, "Exists was not false");
     }
 
     public function testGetArrayAccess()
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
         $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
-            $proxy = $toxiproxy[$proxy["name"]];
+            $proxy = $toxiproxy[$proxy->getName()];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-            $this->assertEquals(
-                $proxy->getHttpResponse()->getStatusCode(),
-                Toxiproxy::OK,
-                sprintf("Could find proxy '%s': %s", $proxy["name"], $proxy->getHttpResponse()->getBody())
-            );
         });
     }
 
@@ -137,7 +125,7 @@ class ToxiproxyTest extends AbstractHttpTest
         $toxiproxy = new Toxiproxy(self::mockHttpClientFactory(
             [self::getNonexistentProxyResponse(self::NONEXISTENT_TEST_NAME)]
         ));
-        $proxy = $toxiproxy->get(self::NONEXISTENT_TEST_NAME);
+        $proxy = $toxiproxy[self::NONEXISTENT_TEST_NAME];
         $this->assertNull($proxy, "Non-existent proxy was expected to be null, was not null");
     }
 
@@ -149,7 +137,7 @@ class ToxiproxyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::NO_CONTENT,
-                sprintf("Could not delete proxy '%s': %s", $proxy["name"], $response->getBody())
+                sprintf("Could not delete proxy '%s': %s", $proxy->getName(), $response->getBody())
             );
         });
     }
@@ -160,8 +148,8 @@ class ToxiproxyTest extends AbstractHttpTest
         $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
-                array_key_exists($proxy["name"], $toxiproxy),
-                sprintf("Could not delete proxy '%s'", $proxy["name"])
+                array_key_exists($proxy->getName(), $toxiproxy),
+                sprintf("Could not delete proxy '%s'", $proxy->getName())
             );
         });
     }
@@ -176,13 +164,13 @@ class ToxiproxyTest extends AbstractHttpTest
             $response = $proxy->disable();
             $this->assertProxyUnavailable(
                 $proxy,
-                sprintf("Could not verify proxy '%s' being unavailable", $proxy["name"])
+                sprintf("Could not verify proxy '%s' being unavailable", $proxy->getName())
             );
 
             $toxiproxy->reset();
             $this->assertProxyAvailable(
                 $proxy,
-                sprintf("Could not verify proxy '%s' being available", $proxy["name"])
+                sprintf("Could not verify proxy '%s' being available", $proxy->getName())
             );
         });
     }

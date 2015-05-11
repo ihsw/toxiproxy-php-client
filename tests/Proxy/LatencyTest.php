@@ -15,7 +15,7 @@ class LatencyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy->getName())
             );
         });
     }
@@ -28,7 +28,7 @@ class LatencyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy->getName())
             );
         });
     }
@@ -41,7 +41,7 @@ class LatencyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update downstream latency toxic for proxy '%s'", $proxy->getName())
             );
         });
     }
@@ -54,7 +54,7 @@ class LatencyTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update upstream latency toxic for proxy '%s'", $proxy->getName())
             );
         });
     }

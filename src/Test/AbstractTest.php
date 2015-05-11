@@ -52,13 +52,13 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy["listen"]);
+        list($ip, $port) = explode(":", $proxy->getListen());
         $this->assertConnection(["ip" => $ip, "port" => $port], $message);
     }
 
     protected function assertProxyUnavailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy["listen"]);
+        list($ip, $port) = explode(":", $proxy->getListen());
         $this->assertConnection(["ip" => $ip, "port" => $port, "match" => false], $message);
     }
 

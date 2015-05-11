@@ -15,7 +15,7 @@ class JitterTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update downstream slow_close toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update downstream slow_close toxic for proxy '%s'", $proxy->getName())
             );
         });
     }
@@ -28,7 +28,7 @@ class JitterTest extends AbstractHttpTest
             $this->assertEquals(
                 $response->getStatusCode(),
                 Toxiproxy::OK,
-                sprintf("Could not update upstream slow_close toxic for proxy '%s'", $proxy["name"])
+                sprintf("Could not update upstream slow_close toxic for proxy '%s'", $proxy->getName())
             );
         });
     }
