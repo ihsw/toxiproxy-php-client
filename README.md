@@ -15,6 +15,8 @@ Once that is installed and you have added `ihsw/toxiproxy-php-bundle` to your `c
 Here is an example for creating a proxy that limits a Redis connection to 1000KB/s.
 
 ```php
+<?php
+
 require("./vendor/autoload.php");
 
 use GuzzleHttp\Client as HttpClient;
