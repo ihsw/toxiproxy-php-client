@@ -151,4 +151,11 @@ class Toxiproxy implements \ArrayAccess
     {
         return $this->httpClient->get("/reset");
     }
+
+    public function deleteAll()
+    {
+        foreach ($this->all() as $proxy) {
+            $this->delete($proxy);
+        }
+    }
 }
