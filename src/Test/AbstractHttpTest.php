@@ -73,8 +73,8 @@ abstract class AbstractHttpTest extends AbstractTest
         $responses = array_merge([
             self::createProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)
         ], $responses);
-        $toxiproxy = new Toxiproxy();
-        $toxiproxy->setHttpClient(self::mockHttpClientFactory($responses));
+        $httpClient = self::mockHttpClientFactory($responses);
+        $toxiproxy = new Toxiproxy($httpClient);
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
