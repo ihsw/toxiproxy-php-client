@@ -24,7 +24,8 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $toxiproxy = new Toxiproxy();
+        $toxiproxy->setHttpClient(self::httpClientFactory());
         if ($toxiproxy->exists(self::TEST_NAME)) {
             $toxiproxy->delete($toxiproxy->get(self::TEST_NAME));
         }
@@ -32,7 +33,8 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     protected function handleProxy(\Closure $callback)
     {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
+        $toxiproxy = new Toxiproxy();
+        $toxiproxy->setHttpClient(self::httpClientFactory());
 
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");

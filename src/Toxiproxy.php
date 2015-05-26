@@ -19,7 +19,7 @@ class Toxiproxy implements \ArrayAccess
 
     private $httpClient;
 
-    public function __construct(HttpClient $httpClient)
+    public function setHttpClient(HttpClient $httpClient)
     {
         $this->httpClient = $httpClient;
     }
