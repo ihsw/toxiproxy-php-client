@@ -1,5 +1,5 @@
 {
-	"name": "ihsw/toxiyproxy-php-client",
+	"name": "ihsw/toxiproxy-php-client",
 	"description": "Php client for shopify/toxiproxy",
 	"license": "MIT",
 	"keywords": ["toxiproxy", "php", "client"],
