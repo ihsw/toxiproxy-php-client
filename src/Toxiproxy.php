@@ -27,17 +27,10 @@ class Toxiproxy implements \ArrayAccess
     public function handleHttpClientException(HttpClientException $e)
     {
         switch ($e->getResponse()->getStatusCode()) {
-            case self::CONFLICT:
-                throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
-                break;
-            case self::NOT_FOUND:
-                throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
-                break;
-            case self::BAD_REQUEST:
-                throw new InvalidToxicException($e->getResponse()->getBody(),  $e->getCode(), $e);
-                break;
-            default:
-                throw $e;
+            case self::CONFLICT: throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
+            case self::NOT_FOUND: throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
+            case self::BAD_REQUEST: throw new InvalidToxicException($e->getResponse()->getBody(),  $e->getCode(), $e);
+            default: throw $e;
         }
     }
 
