@@ -35,6 +35,7 @@ class Toxiproxy implements \ArrayAccess
                 break;
             case self::BAD_REQUEST:
                 throw new InvalidToxicException($e->getResponse()->getBody(),  $e->getCode(), $e);
+                break;
             default:
                 throw $e;
         }
