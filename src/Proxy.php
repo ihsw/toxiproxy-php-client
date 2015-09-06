@@ -31,7 +31,10 @@ class Proxy implements \ArrayAccess
     /**
      * misc
      */
-    private function getHttpClient() { return $this->toxiproxy->getHttpClient(); }
+    private function getHttpClient()
+    {
+      return $this->toxiproxy->getHttpClient();
+    }
 
     public function setEnabled($enabled)
     {
@@ -96,13 +99,11 @@ class Proxy implements \ArrayAccess
     public function offsetExists($offset)
     {
         throw new \Exception("NYI");
-        return array_key_exists($offfset, $this->content);
     }
 
     public function offsetSet($offset, $value)
     {
         throw new \Exception("NYI");
-        $this->content[$offset] = $value;
     }
 
     public function offsetUnset($offset)
@@ -128,7 +129,9 @@ class Proxy implements \ArrayAccess
             $toxic
         );
         try {
-            return $this->getHttpClient()->post($url, ["body" => json_encode($data)]);
+            return $this->getHttpClient()->post($url, [
+                "body" => json_encode($data)
+            ]);
         } catch (HttpClientException $e) {
             $this->toxiproxy->handleHttpClientException($e);
         }
@@ -137,9 +140,10 @@ class Proxy implements \ArrayAccess
     private function setProxy($data)
     {
         try {
-            return $this->getHttpClient()->post(sprintf("/proxies/%s", $this->name), [
-                "body" => json_encode($data)
-            ]);
+            return $this->getHttpClient()->post(
+                sprintf("/proxies/%s", $this->name),
+                ["body" => json_encode($data)]
+            );
         } catch (HttpClientException $e) {
             $this->toxiproxy->handleHttpClientException($e);
         }
@@ -152,7 +156,10 @@ class Proxy implements \ArrayAccess
     {
         $validDirections = [self::UPSTREAM, self::DOWNSTREAM];
         if (!in_array($direction, $validDirections)) {
-            throw new InvalidToxicException(sprintf("Direction must be one of: %s", implode(", ", $validDirections)));
+            throw new InvalidToxicException(sprintf(
+                "Direction must be one of: %s",
+                implode(", ", $validDirections)
+            ));
         }
 
         $settings = [];
@@ -162,7 +169,11 @@ class Proxy implements \ArrayAccess
             $settings = array_merge($settings, $directionData[$toxic]);
         }
 
-        return $this->setToxic($toxic, $direction, array_merge($settings, $options));
+        return $this->setToxic(
+            $toxic,
+            $direction,
+            array_merge($settings, $options)
+        );
     }
 
     public function updateDownstream($toxic, array $options)

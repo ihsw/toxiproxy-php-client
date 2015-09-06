@@ -27,9 +27,23 @@ class Toxiproxy implements \ArrayAccess
     public function handleHttpClientException(HttpClientException $e)
     {
         switch ($e->getResponse()->getStatusCode()) {
-            case self::CONFLICT: throw new ProxyExistsException($e->getResponse()->getBody(), $e->getCode(), $e);
-            case self::NOT_FOUND: throw new NotFoundException($e->getResponse()->getBody(), $e->getCode(), $e);
-            case self::BAD_REQUEST: throw new InvalidToxicException($e->getResponse()->getBody(),  $e->getCode(), $e);
+            case self::CONFLICT:
+                throw new ProxyExistsException(
+                    $e->getResponse()->getBody(),
+                    $e->getCode(), $e
+                );
+            case self::NOT_FOUND:
+                throw new NotFoundException(
+                    $e->getResponse()->getBody(),
+                    $e->getCode(),
+                    $e
+                );
+            case self::BAD_REQUEST:
+                throw new InvalidToxicException(
+                    $e->getResponse()->getBody(),
+                    $e->getCode(),
+                    $e
+                );
             default: throw $e;
         }
     }
@@ -102,13 +116,15 @@ class Toxiproxy implements \ArrayAccess
     public function create($name, $upstream, $listen = null)
     {
         try {
-            return $this->responseToProxy($this->httpClient->post("/proxies", [
-                "body" => json_encode([
-                    "name" => $name,
-                    "upstream" => $upstream,
-                    "listen" => $listen
+            return $this->responseToProxy(
+                $this->httpClient->post("/proxies", [
+                    "body" => json_encode([
+                        "name" => $name,
+                        "upstream" => $upstream,
+                        "listen" => $listen
+                    ])
                 ])
-            ]));
+            );
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
@@ -117,7 +133,9 @@ class Toxiproxy implements \ArrayAccess
     public function get($name)
     {
         try {
-            return $this->responseToProxy($this->httpClient->get(sprintf("/proxies/%s", $name)));
+            return $this->responseToProxy(
+                $this->httpClient->get(sprintf("/proxies/%s", $name))
+            );
         } catch (HttpClientException $e) {
             if ($e->getResponse()->getStatusCode() !== self::NOT_FOUND) {
                 $this->handleHttpClientException($e);
@@ -130,7 +148,9 @@ class Toxiproxy implements \ArrayAccess
     public function delete(Proxy $proxy)
     {
         try {
-            return $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
+            return $this->httpClient->delete(
+                sprintf("/proxies/%s", $proxy->getName())
+            );
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
