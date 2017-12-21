@@ -1,4 +1,6 @@
-<?php namespace Ihsw\Toxiproxy;
+<?php
+
+namespace Ihsw\Toxiproxy;
 
 use Ihsw\Toxiproxy\Proxy;
 
