@@ -1,8 +1,8 @@
 <?php
 
-use Ihsw\Toxiproxy\Test\AbstractHttpTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Test\AbstractHttpTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 class ProxyTest extends AbstractHttpTest
 {
@@ -12,7 +12,7 @@ class ProxyTest extends AbstractHttpTest
     public function testUpdateInvalidToxic()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::BAD_REQUEST, "invalid-toxic.json")];
-        $this->handleProxy($responses, function(Proxy $proxy) {
+        $this->handleProxy($responses, function (Proxy $proxy) {
             $proxy->updateDownstream("fdsfgs", []);
         });
     }
@@ -23,7 +23,7 @@ class ProxyTest extends AbstractHttpTest
             [self::disableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)],
             $responses
         );
-        $this->handleProxy($responses, function(Proxy $proxy) use($callback) {
+        $this->handleProxy($responses, function (Proxy $proxy) use ($callback) {
             $response = $proxy->disable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -45,7 +45,7 @@ class ProxyTest extends AbstractHttpTest
     public function testEnable()
     {
         $responses = [self::enableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN)];
-        $this->testDisable($responses, function(Proxy $proxy) {
+        $this->testDisable($responses, function (Proxy $proxy) {
             $response = $proxy->enable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -62,7 +62,7 @@ class ProxyTest extends AbstractHttpTest
 
     public function testCreateArrayAccess()
     {
-        $this->handleProxy([], function(Proxy $proxy) {
+        $this->handleProxy([], function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             $proxy["test"] = "test";
         });
@@ -70,7 +70,7 @@ class ProxyTest extends AbstractHttpTest
 
     public function testGetArrayAccess()
     {
-        $this->handleProxy([], function(Proxy $proxy) {
+        $this->handleProxy([], function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             $test = $proxy["test"];
         });
@@ -78,7 +78,7 @@ class ProxyTest extends AbstractHttpTest
 
     public function testGetNonexistArrayAccess()
     {
-        $this->handleProxy([], function(Proxy $proxy) {
+        $this->handleProxy([], function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             unset($proxy["test-non-exist"]);
         });
@@ -86,7 +86,7 @@ class ProxyTest extends AbstractHttpTest
 
     public function testDeleteArrayAccess()
     {
-        $this->handleProxy([], function(Proxy $proxy) {
+        $this->handleProxy([], function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             unset($proxy["test"]);
         });

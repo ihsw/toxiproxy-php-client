@@ -2,4 +2,7 @@
 
 use Ihsw\Toxiproxy\Exception\Exception;
 
-class ProxyExistsException extends Exception {}
+class ProxyExistsException extends Exception
+{
+
+}

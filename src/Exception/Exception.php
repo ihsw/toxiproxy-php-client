@@ -1,3 +1,6 @@
 <?php namespace Ihsw\Toxiproxy\Exception;
 
-class Exception extends \RuntimeException {}
+class Exception extends \RuntimeException
+{
+
+}

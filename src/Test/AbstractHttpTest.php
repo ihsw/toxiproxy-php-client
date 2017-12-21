@@ -1,18 +1,20 @@
 <?php namespace Ihsw\Toxiproxy\Test;
 
-use GuzzleHttp\Client as HttpClient,
-    GuzzleHttp\Subscriber\Mock as HttpMock,
-    GuzzleHttp\Handler\MockHandler as HttpMockHandler,
-    GuzzleHttp\HandlerStack as HttpHandlerStack,
-    GuzzleHttp\Psr7 as HttpPsr7,
-    GuzzleHttp\Psr7\Response as HttpResponse;
-use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Subscriber\Mock as HttpMock;
+use GuzzleHttp\Handler\MockHandler as HttpMockHandler;
+use GuzzleHttp\HandlerStack as HttpHandlerStack;
+use GuzzleHttp\Psr7 as HttpPsr7;
+use GuzzleHttp\Psr7\Response as HttpResponse;
+use Ihsw\Toxiproxy\Test\AbstractTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractHttpTest extends AbstractTest
 {
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
     /**
      * various factories

@@ -1,11 +1,11 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException,
-    Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Test\AbstractTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Exception\ProxyExistsException;
+use Ihsw\Toxiproxy\Exception\NotFoundException;
+use Ihsw\Toxiproxy\Proxy;
 
 class ToxiproxyTest extends AbstractTest
 {
@@ -25,8 +25,8 @@ class ToxiproxyTest extends AbstractTest
 
     public function testAll()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy) {
-            $result = array_reduce($toxiproxy->all(), function($result, $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy) {
+            $result = array_reduce($toxiproxy->all(), function ($result, $proxy) {
                 if (!$proxy) {
                     return $proxy;
                 }
@@ -50,14 +50,14 @@ class ToxiproxyTest extends AbstractTest
      */
     public function testCreateDuplicate()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $toxiproxy->create($proxy->getName(), $proxy->getUpstream(), $proxy->getListen());
         });
     }
 
     public function testGet()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy->get($proxy->getName());
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
         });
@@ -65,7 +65,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testExists()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $exists = $toxiproxy->exists($proxy->getName());
             $this->assertTrue($exists, "Exists was not true");
         });
@@ -80,7 +80,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testGetArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy[$proxy->getName()];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
         });
@@ -102,7 +102,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDelete()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -114,7 +114,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testDeleteArrayAccess()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy->getName(), $toxiproxy),
@@ -125,7 +125,7 @@ class ToxiproxyTest extends AbstractTest
 
     public function testReset()
     {
-        $this->testCreate(function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate(function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["enabled" => true, "latency" => 1000]);
             $this->assertEquals(
                 $response->getStatusCode(),

@@ -2,4 +2,7 @@
 
 use Ihsw\Toxiproxy\Exception\Exception;
 
-class InvalidToxicException extends Exception {}
+class InvalidToxicException extends Exception
+{
+
+}

@@ -1,15 +1,15 @@
 <?php
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Test\AbstractTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 class LatencyTest extends AbstractTest
 {
     public function testUpdateDownstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -21,7 +21,7 @@ class LatencyTest extends AbstractTest
 
     public function testUpdateUpstream()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),

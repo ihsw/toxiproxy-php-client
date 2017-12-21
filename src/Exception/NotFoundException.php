@@ -2,4 +2,7 @@
 
 use Ihsw\Toxiproxy\Exception\Exception;
 
-class NotFoundException extends Exception {}
+class NotFoundException extends Exception
+{
+
+}

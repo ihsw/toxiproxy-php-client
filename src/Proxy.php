@@ -3,8 +3,8 @@
 namespace Ihsw\Toxiproxy;
 
 use GuzzleHttp\Exception\ClientException as HttpClientException;
-use Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Exception\InvalidToxicException;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Exception\InvalidToxicException;
 
 class Proxy implements \ArrayAccess
 {
@@ -34,7 +34,7 @@ class Proxy implements \ArrayAccess
      */
     private function getHttpClient()
     {
-      return $this->toxiproxy->getHttpClient();
+        return $this->toxiproxy->getHttpClient();
     }
 
     public function setEnabled($enabled)
@@ -42,28 +42,40 @@ class Proxy implements \ArrayAccess
         $this->enabled = $enabled;
         return $this;
     }
-    public function getEnabled() { return $this->enabled; }
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
 
     public function setName($name)
     {
         $this->name = $name;
         return $this;
     }
-    public function getName() { return $this->name; }
+    public function getName()
+    {
+        return $this->name;
+    }
 
     public function setUpstream($upstream)
     {
         $this->upstream = $upstream;
         return $this;
     }
-    public function getUpstream() { return $this->upstream; }
+    public function getUpstream()
+    {
+        return $this->upstream;
+    }
 
     public function setListen($listen)
     {
         $this->listen = $listen;
         return $this;
     }
-    public function getListen() { return $this->listen; }
+    public function getListen()
+    {
+        return $this->listen;
+    }
     public function getListenIp()
     {
         $ip = implode(":", explode(":", $this->listen, -1));
@@ -84,14 +96,20 @@ class Proxy implements \ArrayAccess
         $this->upstreamToxics = $toxics;
         return $this;
     }
-    public function getUpstreamToxics() { return $this->upstreamToxics; }
+    public function getUpstreamToxics()
+    {
+        return $this->upstreamToxics;
+    }
 
     public function setDownstreamToxics(array $toxics)
     {
         $this->downstreamToxics = $toxics;
         return $this;
     }
-    public function getDownstreamToxics() { return $this->downstreamToxics; }
+    public function getDownstreamToxics()
+    {
+        return $this->downstreamToxics;
+    }
 
 
     /**
@@ -124,7 +142,8 @@ class Proxy implements \ArrayAccess
      */
     private function setToxic($toxic, $direction, $data)
     {
-        $url = sprintf("proxies/%s/%s/toxics/%s",
+        $url = sprintf(
+            "proxies/%s/%s/toxics/%s",
             $this->name,
             $direction,
             $toxic
