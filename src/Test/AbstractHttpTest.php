@@ -1,7 +1,8 @@
-<?php namespace Ihsw\Toxiproxy\Test;
+<?php
+
+namespace Ihsw\Toxiproxy\Test;
 
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Subscriber\Mock as HttpMock;
 use GuzzleHttp\Handler\MockHandler as HttpMockHandler;
 use GuzzleHttp\HandlerStack as HttpHandlerStack;
 use GuzzleHttp\Psr7 as HttpPsr7;

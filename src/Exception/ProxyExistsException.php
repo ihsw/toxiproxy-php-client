@@ -1,4 +1,6 @@
-<?php namespace Ihsw\Toxiproxy\Exception;
+<?php
+
+namespace Ihsw\Toxiproxy\Exception;
 
 use Ihsw\Toxiproxy\Exception\Exception;
 

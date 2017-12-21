@@ -1,5 +1,7 @@
 <?php
 
+namespace Ihsw\ToxyproxyTests\Integration;
+
 use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;

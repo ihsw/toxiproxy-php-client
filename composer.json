@@ -23,6 +23,12 @@
 			"Ihsw\\Toxiproxy\\": "src"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Ihsw\\ToxyproxyTests\\Integration\\": "tests/integration",
+			"Ihsw\\ToxyproxyTests\\Unit\\": "tests/unit"
+		}
+	},
 	"scripts": {
 		"test": "./vendor/bin/phpunit tests/unit",
 		"lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/* ./",

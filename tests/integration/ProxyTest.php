@@ -1,5 +1,7 @@
 <?php
 
+namespace Ihsw\ToxyproxyTests\Integration;
+
 use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;

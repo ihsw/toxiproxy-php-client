@@ -1,4 +1,6 @@
-<?php namespace Ihsw\Toxiproxy\Test;
+<?php
+
+namespace Ihsw\Toxiproxy\Test;
 
 use GuzzleHttp\Client as HttpClient;
 use React\EventLoop\Factory as EventLoopFactory;
