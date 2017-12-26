@@ -1,16 +1,18 @@
 <?php
 
+namespace Ihsw\ToxyproxyTests\Unit\Proxy;
+
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Test\AbstractHttpTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Test\AbstractHttpTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 class LatencyTest extends AbstractHttpTest
 {
     public function testUpdateDownstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
-        $this->handleProxy($responses, function(Proxy $proxy) {
+        $this->handleProxy($responses, function (Proxy $proxy) {
             $response = $proxy->updateDownstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -23,7 +25,7 @@ class LatencyTest extends AbstractHttpTest
     public function testUpdateUpstream()
     {
         $responses = [self::httpTestResponseFactory(Toxiproxy::OK, "set-latency-toxic.json")];
-        $this->handleProxy($responses, function(Proxy $proxy) {
+        $this->handleProxy($responses, function (Proxy $proxy) {
             $response = $proxy->updateUpstream("latency", ["latency" => 100, "jitter" => 100]);
             $this->assertEquals(
                 $response->getStatusCode(),

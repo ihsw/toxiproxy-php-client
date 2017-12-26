@@ -1,8 +1,10 @@
 <?php
 
-use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+namespace Ihsw\ToxyproxyTests\Integration;
+
+use Ihsw\Toxiproxy\Test\AbstractTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 class ProxyTest extends AbstractTest
 {
@@ -11,14 +13,14 @@ class ProxyTest extends AbstractTest
      */
     public function testUpdateInvalidToxic()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $proxy->updateDownstream("fdsfgs", []);
         });
     }
 
     public function testDisable($callback = null)
     {
-        $this->handleProxy(function(Proxy $proxy) use($callback) {
+        $this->handleProxy(function (Proxy $proxy) use ($callback) {
             $response = $proxy->disable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -39,7 +41,7 @@ class ProxyTest extends AbstractTest
 
     public function testEnable()
     {
-        $this->testDisable(function(Proxy $proxy) {
+        $this->testDisable(function (Proxy $proxy) {
             $response = $proxy->enable();
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -56,7 +58,7 @@ class ProxyTest extends AbstractTest
 
     public function testCreateArrayAccess()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             $proxy["test"] = "test";
         });
@@ -64,7 +66,7 @@ class ProxyTest extends AbstractTest
 
     public function testGetArrayAccess()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             $test = $proxy["test"];
         });
@@ -72,7 +74,7 @@ class ProxyTest extends AbstractTest
 
     public function testGetNonexistArrayAccess()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             unset($proxy["test-non-exist"]);
         });
@@ -80,7 +82,7 @@ class ProxyTest extends AbstractTest
 
     public function testDeleteArrayAccess()
     {
-        $this->handleProxy(function(Proxy $proxy) {
+        $this->handleProxy(function (Proxy $proxy) {
             $this->markTestIncomplete("NYI");
             unset($proxy["test"]);
         });

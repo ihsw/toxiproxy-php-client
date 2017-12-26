@@ -1,30 +1,36 @@
-<?php namespace Ihsw\Toxiproxy\Test;
+<?php
 
-use GuzzleHttp\Subscriber\Mock as HttpMock,
-    GuzzleHttp\Stream\Stream as HttpStream,
-    GuzzleHttp\Message\Response as HttpResponse;
-use Ihsw\Toxiproxy\Test\AbstractTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+namespace Ihsw\Toxiproxy\Test;
+
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Handler\MockHandler as HttpMockHandler;
+use GuzzleHttp\HandlerStack as HttpHandlerStack;
+use GuzzleHttp\Psr7 as HttpPsr7;
+use GuzzleHttp\Psr7\Response as HttpResponse;
+use Ihsw\Toxiproxy\Test\AbstractTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractHttpTest extends AbstractTest
 {
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
     /**
      * various factories
      */
     protected static function mockHttpClientFactory(array $responses)
     {
-        $httpClient = self::httpClientFactory();
-        $mock = new HttpMock($responses);
-        $httpClient->getEmitter()->attach($mock);
-        return $httpClient;
+        $mock = new HttpMockHandler($responses);
+        $handler = HttpHandlerStack::create($mock);
+        $client = new HttpClient(["handler" => $handler]);
+        return $client;
     }
 
     protected static function httpResponseFactory($statusCode, $body, array $headers = [])
     {
-        return new HttpResponse($statusCode, $headers, HttpStream::factory($body));
+        return new HttpResponse($statusCode, $headers, HttpPsr7\stream_for($body));
     }
 
     protected static function httpTestResponseFactory($statusCode, $filename, array $params = [])

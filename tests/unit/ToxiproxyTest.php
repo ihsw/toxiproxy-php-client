@@ -1,8 +1,10 @@
 <?php
 
-use Ihsw\Toxiproxy\Test\AbstractHttpTest,
-    Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+namespace Ihsw\ToxyproxyTests\Unit;
+
+use Ihsw\Toxiproxy\Test\AbstractHttpTest;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 class ToxiproxyTest extends AbstractHttpTest
 {
@@ -34,8 +36,8 @@ class ToxiproxyTest extends AbstractHttpTest
             )
         ];
 
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy) {
-            $result = array_reduce($toxiproxy->all(), function($result, $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy) {
+            $result = array_reduce($toxiproxy->all(), function ($result, $proxy) {
                 if (!$proxy) {
                     return $proxy;
                 }
@@ -70,7 +72,7 @@ class ToxiproxyTest extends AbstractHttpTest
                 [self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM]
             )
         ];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $toxiproxy->create($proxy->getName(), $proxy->getUpstream(), $proxy->getListen());
         });
     }
@@ -78,7 +80,7 @@ class ToxiproxyTest extends AbstractHttpTest
     public function testGet()
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy->get($proxy->getName());
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
         });
@@ -87,7 +89,7 @@ class ToxiproxyTest extends AbstractHttpTest
     public function testExists()
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $exists = $toxiproxy->exists($proxy->getName());
             $this->assertTrue($exists, "Exists was not true");
         });
@@ -105,7 +107,7 @@ class ToxiproxyTest extends AbstractHttpTest
     public function testGetArrayAccess()
     {
         $responses = [self::getProxyResponse(self::TEST_NAME, self::TEST_LISTEN, self::TEST_UPSTREAM)];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $proxy = $toxiproxy[$proxy->getName()];
             $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
         });
@@ -132,7 +134,7 @@ class ToxiproxyTest extends AbstractHttpTest
     public function testDelete()
     {
         $responses = [self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $toxiproxy->delete($proxy);
             $this->assertEquals(
                 $response->getStatusCode(),
@@ -145,7 +147,7 @@ class ToxiproxyTest extends AbstractHttpTest
     public function testDeleteArrayAccess()
     {
         $responses = [self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             unset($toxiproxy[$proxy]);
             $this->assertFalse(
                 array_key_exists($proxy->getName(), $toxiproxy),
@@ -160,7 +162,7 @@ class ToxiproxyTest extends AbstractHttpTest
             self::disableProxyResponse(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN),
             self::httpResponseFactory(Toxiproxy::NO_CONTENT, "")
         ];
-        $this->testCreate($responses, function(Toxiproxy $toxiproxy, Proxy $proxy) {
+        $this->testCreate($responses, function (Toxiproxy $toxiproxy, Proxy $proxy) {
             $response = $proxy->disable();
             $this->assertProxyUnavailable(
                 $proxy,

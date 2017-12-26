@@ -13,7 +13,7 @@ $listen = $proxy->getListen();
 $ip = implode(":", explode(":", $proxy->getListen(), -1));
 $port = substr($listen, 1 + strlen($ip));
 printf(
-	"Listening on IP %s and port %s on behalf of 6379, with latency between 100ms and 200ms, randomly distributed\n",
-	$ip,
-	$port
+    "Listening on IP %s and port %s on behalf of 6379, with latency between 100ms and 200ms, randomly distributed\n",
+    $ip,
+    $port
 );

@@ -1,12 +1,14 @@
-<?php namespace Ihsw\Toxiproxy;
+<?php
 
-use GuzzleHttp\Client as HttpClient,
-    GuzzleHttp\Exception\ClientException as HttpClientException,
-    GuzzleHttp\Message\Response as HttpResponse;
-use Ihsw\Toxiproxy\Exception\ProxyExistsException,
-    Ihsw\Toxiproxy\Exception\NotFoundException,
-    Ihsw\Toxiproxy\Exception\InvalidToxicException,
-    Ihsw\Toxiproxy\Proxy;
+namespace Ihsw\Toxiproxy;
+
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\ClientException as HttpClientException;
+use GuzzleHttp\Psr7\Response as HttpResponse;
+use Ihsw\Toxiproxy\Exception\ProxyExistsException;
+use Ihsw\Toxiproxy\Exception\NotFoundException;
+use Ihsw\Toxiproxy\Exception\InvalidToxicException;
+use Ihsw\Toxiproxy\Proxy;
 
 class Toxiproxy implements \ArrayAccess
 {
@@ -30,7 +32,8 @@ class Toxiproxy implements \ArrayAccess
             case self::CONFLICT:
                 throw new ProxyExistsException(
                     $e->getResponse()->getBody(),
-                    $e->getCode(), $e
+                    $e->getCode(),
+                    $e
                 );
             case self::NOT_FOUND:
                 throw new NotFoundException(
@@ -44,7 +47,8 @@ class Toxiproxy implements \ArrayAccess
                     $e->getCode(),
                     $e
                 );
-            default: throw $e;
+            default:
+                throw $e;
         }
     }
 
@@ -108,7 +112,7 @@ class Toxiproxy implements \ArrayAccess
      */
     public function all()
     {
-        return array_map(function($contents) {
+        return array_map(function ($contents) {
             return $this->contentsToProxy($contents);
         }, json_decode($this->httpClient->get("/proxies")->getBody(), true));
     }

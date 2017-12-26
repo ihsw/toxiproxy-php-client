@@ -1,14 +1,16 @@
-<?php namespace Ihsw\Toxiproxy\Test;
+<?php
+
+namespace Ihsw\Toxiproxy\Test;
 
 use GuzzleHttp\Client as HttpClient;
-use React\EventLoop\Factory as EventLoopFactory,
-    React\Dns\Resolver\Factory as DnsResolverFactory,
-    React\Socket\Server as SocketServer,
-    React\SocketClient\Connector as SocketConnector,
-    React\SocketClient\ConnectionException as SocketConnectionException,
-    React\Stream\Stream as SocketStream;
-use Ihsw\Toxiproxy\Toxiproxy,
-    Ihsw\Toxiproxy\Proxy;
+use React\EventLoop\Factory as EventLoopFactory;
+use React\Dns\Resolver\Factory as DnsResolverFactory;
+use React\Socket\Server as SocketServer;
+use React\SocketClient\Connector as SocketConnector;
+use React\SocketClient\ConnectionException as SocketConnectionException;
+use React\Stream\Stream as SocketStream;
+use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 {
@@ -77,14 +79,14 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $promise = $connector->create($settings["ip"], $settings["port"])->then(function (SocketStream $stream) {
             $stream->close();
             return true;
-        }, function(SocketConnectionException $e) {
+        }, function (SocketConnectionException $e) {
             return false;
         });
         $clientLoop->run();
 
         // catching the output
         $out = null;
-        $promise->done(function($v) use(&$out) {
+        $promise->done(function ($v) use (&$out) {
             $out = $v;
         });
 
