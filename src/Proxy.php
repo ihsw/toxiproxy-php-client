@@ -2,80 +2,7 @@
 
 namespace Ihsw\Toxiproxy;
 
-use GuzzleHttp\Exception\ClientException as HttpClientException;
-use Ihsw\Toxiproxy\Toxiproxy;
-use Ihsw\Toxiproxy\Exception\InvalidToxicException;
-
-class Proxy implements \ArrayAccess
-{
-    const UPSTREAM = "upstream";
-    const DOWNSTREAM = "downstream";
-
-    private $toxiproxy;
-    private $enabled;
-    private $name;
-    private $upstream;
-    private $listen;
-    private $upstreamToxics;
-    private $downstreamToxics;
-
-    /**
-     * @param Toxiproxy
-     */
-    public function __construct(Toxiproxy $toxiproxy)
-    {
-        $this->toxiproxy = $toxiproxy;
-        $this->upstreamToxics = [];
-        $this->downstreamToxics = [];
-    }
-
-    /**
-     * misc
-     */
-    private function getHttpClient()
-    {
-        return $this->toxiproxy->getHttpClient();
-    }
-
-    public function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
-        return $this;
-    }
-    public function getEnabled()
-    {
-        return $this->enabled;
-    }
-
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function setUpstream($upstream)
-    {
-        $this->upstream = $upstream;
-        return $this;
-    }
-    public function getUpstream()
-    {
-        return $this->upstream;
-    }
-
-    public function setListen($listen)
-    {
-        $this->listen = $listen;
-        return $this;
-    }
-    public function getListen()
-    {
-        return $this->listen;
-    }
+trait ListenHelpers {
     public function getListenIp()
     {
         $ip = implode(":", explode(":", $this->listen, -1));
@@ -84,135 +11,130 @@ class Proxy implements \ArrayAccess
         }
         return $ip;
     }
+
     public function getListenPort()
     {
         $ip = $this->getListenIp();
         $start = substr($this->listen, 0, 1) === "[" ? 3 : 1;
         return substr($this->listen, $start + strlen($ip));
     }
+}
 
-    public function setUpstreamToxics(array $toxics)
+class Proxy
+{
+    const UPSTREAM = "upstream";
+    const DOWNSTREAM = "downstream";
+
+    /**
+     * @var Toxiproxy
+     */
+    private $toxiproxy;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $listen;
+
+    /**
+     * @var string
+     */
+    private $upstream;
+
+    /**
+     * @var bool
+     */
+    private $enabled;
+
+    /**
+     * @var Toxic[]
+     */
+    private $toxics;
+
+    use ListenHelpers;
+
+    /**
+     * Proxy constructor.
+     * @param Toxiproxy $toxiproxy
+     */
+    public function __construct(Toxiproxy $toxiproxy)
     {
-        $this->upstreamToxics = $toxics;
+        $this->toxiproxy = $toxiproxy;
+        $this->toxics = [];
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function setName($name) {
+        $this->name = $name;
         return $this;
     }
-    public function getUpstreamToxics()
+
+    /**
+     * @return string
+     */
+    public function getName()
     {
-        return $this->upstreamToxics;
+        return $this->name;
     }
 
-    public function setDownstreamToxics(array $toxics)
+    /**
+     * @param $listen
+     * @return $this
+     */
+    public function setListen($listen)
     {
-        $this->downstreamToxics = $toxics;
+        $this->listen = $listen;
         return $this;
     }
-    public function getDownstreamToxics()
-    {
-        return $this->downstreamToxics;
-    }
-
 
     /**
-     * ArrayAccess
+     * @return string
      */
-    public function offsetExists($offset)
+    public function getListen()
     {
-        throw new \Exception("NYI");
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        throw new \Exception("NYI");
-    }
-
-    public function offsetUnset($offset)
-    {
-        throw new \Exception("NYI");
-        unset($this->content[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        throw new \Exception("NYI");
-        return $this->content[$offset];
+        return $this->listen;
     }
 
     /**
-     * api access
+     * @return string
      */
-    private function setToxic($toxic, $direction, $data)
+    public function getUpstream()
     {
-        $url = sprintf(
-            "proxies/%s/%s/toxics/%s",
-            $this->name,
-            $direction,
-            $toxic
-        );
-        try {
-            return $this->getHttpClient()->post($url, [
-                "body" => json_encode($data)
-            ]);
-        } catch (HttpClientException $e) {
-            $this->toxiproxy->handleHttpClientException($e);
-        }
-    }
-
-    private function setProxy($data)
-    {
-        try {
-            return $this->getHttpClient()->post(
-                sprintf("/proxies/%s", $this->name),
-                ["body" => json_encode($data)]
-            );
-        } catch (HttpClientException $e) {
-            $this->toxiproxy->handleHttpClientException($e);
-        }
+        return $this->upstream;
     }
 
     /**
-     * derived api access
+     * @param string $upstream
+     * @return $this
      */
-    private function update($toxic, $direction, array $options)
+    public function setUpstream($upstream)
     {
-        $validDirections = [self::UPSTREAM, self::DOWNSTREAM];
-        if (!in_array($direction, $validDirections)) {
-            throw new InvalidToxicException(sprintf(
-                "Direction must be one of: %s",
-                implode(", ", $validDirections)
-            ));
-        }
-
-        $settings = [];
-        $key = sprintf("%sToxics", $direction);
-        $directionData = $this->$key;
-        if (array_key_exists($toxic, $directionData)) {
-            $settings = array_merge($settings, $directionData[$toxic]);
-        }
-
-        return $this->setToxic(
-            $toxic,
-            $direction,
-            array_merge($settings, $options)
-        );
+        $this->upstream = $upstream;
+        return $this;
     }
 
-    public function updateDownstream($toxic, array $options)
+    /**
+     * @return bool
+     */
+    public function isEnabled()
     {
-        return $this->update($toxic, self::DOWNSTREAM, $options);
+        return $this->enabled;
     }
 
-    public function updateUpstream($toxic, array $options)
+    /**
+     * @param bool $enabled
+     * @return $this
+     */
+    public function setEnabled($enabled)
     {
-        return $this->update($toxic, self::UPSTREAM, $options);
-    }
-
-    public function disable()
-    {
-        return $this->setProxy(["enabled" => false]);
-    }
-
-    public function enable()
-    {
-        return $this->setProxy(["enabled" => true]);
+        $this->enabled = $enabled;
+        return $this;
     }
 }

@@ -19,4 +19,17 @@
             <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
+    <logging>
+        <log
+            type="coverage-html"
+            target="_reports/coverage"
+            charset="UTF-8"
+            yui="true"
+            highlight="true"
+            lowUpperBound="35"
+            highLowerBound="70"
+        />
+        <log type="coverage-clover" target="_reports/clover.xml" />
+        <log type="coverage-php" target="_reports/clover.cov" />
+    </logging>
 </phpunit>

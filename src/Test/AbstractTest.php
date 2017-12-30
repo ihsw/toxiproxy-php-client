@@ -9,28 +9,23 @@ use React\Socket\Server as SocketServer;
 use React\SocketClient\Connector as SocketConnector;
 use React\SocketClient\ConnectionException as SocketConnectionException;
 use React\Stream\Stream as SocketStream;
+use PHPUnit\Framework\TestCase;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
 
-abstract class AbstractTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractTest extends TestCase
 {
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
     const TEST_LISTEN = "127.0.0.1:34343";
-    const TEST_BASE_URL = "http://127.0.0.1:8474";
+    const TEST_BASE_URL = "http://toxiproxy:8474";
 
+    /**
+     * @return HttpClient
+     */
     protected static function httpClientFactory()
     {
         return new HttpClient(["base_url" => self::TEST_BASE_URL]);
-    }
-
-    public function tearDown()
-    {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
-        $proxy = $toxiproxy[self::TEST_NAME];
-        if (!is_null($proxy)) {
-            $toxiproxy->delete($proxy);
-        }
     }
 
     protected function handleProxy(\Closure $callback)

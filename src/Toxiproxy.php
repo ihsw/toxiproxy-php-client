@@ -4,13 +4,13 @@ namespace Ihsw\Toxiproxy;
 
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException as HttpClientException;
-use GuzzleHttp\Psr7\Response as HttpResponse;
+use Psr\Http\Message\ResponseInterface;
+use Ihsw\Toxiproxy\Exception\Exception;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\InvalidToxicException;
-use Ihsw\Toxiproxy\Proxy;
 
-class Toxiproxy implements \ArrayAccess
+class Toxiproxy
 {
     const OK = 200;
     const CREATED = 201;
@@ -19,13 +19,24 @@ class Toxiproxy implements \ArrayAccess
     const NOT_FOUND = 404;
     const CONFLICT = 409;
 
+    /**
+     * @var HttpClient
+     */
     private $httpClient;
 
+    /**
+     * Toxiproxy constructor.
+     * @param HttpClient $httpClient
+     */
     public function __construct(HttpClient $httpClient)
     {
         $this->httpClient = $httpClient;
     }
 
+    /**
+     * @param HttpClientException $e
+     * @throws Exception|HttpClientException
+     */
     public function handleHttpClientException(HttpClientException $e)
     {
         switch ($e->getResponse()->getStatusCode()) {
@@ -53,18 +64,26 @@ class Toxiproxy implements \ArrayAccess
     }
 
     /**
-     * misc
+     * @return HttpClient
      */
     public function getHttpClient()
     {
         return $this->httpClient;
     }
 
-    private function responseToProxy(HttpResponse $response)
+    /**
+     * @param ResponseInterface $response
+     * @return Proxy
+     */
+    private function responseToProxy(ResponseInterface $response)
     {
         return $this->contentsToProxy(json_decode($response->getBody(), true));
     }
 
+    /**
+     * @param array $contents
+     * @return Proxy
+     */
     private function contentsToProxy(array $contents)
     {
         $proxy = new Proxy($this);
@@ -73,42 +92,11 @@ class Toxiproxy implements \ArrayAccess
             ->setUpstream($contents["upstream"])
             ->setListen($contents["listen"]);
 
-        if (array_key_exists("upstream_toxics", $contents)) {
-            $proxy->setUpstreamToxics($contents["upstream_toxics"]);
-        }
-        if (array_key_exists("downstream_toxics", $contents)) {
-            $proxy->setDownstreamToxics($contents["downstream_toxics"]);
-        }
-
         return $proxy;
     }
 
     /**
-     * ArrayAccess
-     */
-    public function offsetExists($offset)
-    {
-        return $this->exists($offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        array_unshift($value, $offset);
-        call_user_func_array([$this, "create"], $value);
-    }
-
-    public function offsetUnset($offset)
-    {
-        $this->delete($offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->get($offset);
-    }
-
-    /**
-     * crud
+     * @return array
      */
     public function all()
     {
@@ -117,29 +105,36 @@ class Toxiproxy implements \ArrayAccess
         }, json_decode($this->httpClient->get("/proxies")->getBody(), true));
     }
 
+    /**
+     * @param string $name
+     * @param string $upstream
+     * @param string|null $listen
+     * @return Proxy|null
+     */
     public function create($name, $upstream, $listen = null)
     {
         try {
             return $this->responseToProxy(
                 $this->httpClient->post("/proxies", [
-                    "body" => json_encode([
-                        "name" => $name,
-                        "upstream" => $upstream,
-                        "listen" => $listen
-                    ])
+                    "body" => json_encode(["name" => $name, "upstream" => $upstream, "listen" => $listen])
                 ])
             );
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
+
+            return null;
         }
     }
 
+    /**
+     * @param string $name
+     * @return Proxy|null
+     * @throws Exception|HttpClientException
+     */
     public function get($name)
     {
         try {
-            return $this->responseToProxy(
-                $this->httpClient->get(sprintf("/proxies/%s", $name))
-            );
+            return $this->responseToProxy($this->httpClient->get(sprintf("/proxies/%s", $name)));
         } catch (HttpClientException $e) {
             if ($e->getResponse()->getStatusCode() !== self::NOT_FOUND) {
                 $this->handleHttpClientException($e);
@@ -149,6 +144,11 @@ class Toxiproxy implements \ArrayAccess
         }
     }
 
+    /**
+     * @param Proxy $proxy
+     * @return null|ResponseInterface
+     * @throws Exception|HttpClientException
+     */
     public function delete(Proxy $proxy)
     {
         try {
@@ -158,13 +158,22 @@ class Toxiproxy implements \ArrayAccess
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e);
         }
+
+        return null;
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function exists($name)
     {
         return !is_null($this->get($name));
     }
 
+    /**
+     * @return ResponseInterface
+     */
     public function reset()
     {
         return $this->httpClient->get("/reset");
