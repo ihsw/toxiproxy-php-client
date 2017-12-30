@@ -2,7 +2,8 @@
 
 namespace Ihsw\Toxiproxy;
 
-class Toxic {
+class Toxic
+{
     const LATENCY = "latency";
     const DOWN = "down";
     const BANDWIDTH = "bandwidth";

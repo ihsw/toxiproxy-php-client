@@ -32,7 +32,7 @@
 	},
 	"scripts": {
 		"test": "./vendor/bin/phpunit tests",
-		"lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/* ./",
+		"lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/*,*/_reports/* ./",
 		"fix-lint": "./vendor/bin/phpcbf --standard=PSR2 --ignore=*/vendor/* ./",
 		"coveralls": "./vendor/bin/php-coveralls --coverage_clover=./_reports/clover.xml --json_path=./_reports/coveralls-upload.json"
 	}
