@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Proxy;
 use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 
 class ToxiproxyTest extends AbstractTest
 {
@@ -36,5 +37,17 @@ class ToxiproxyTest extends AbstractTest
         $response = $toxiproxy->delete($proxy);
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals($response->getStatusCode(), 204);
+    }
+
+    public function testCreateDuplicate()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        try {
+            $this->createProxy($toxiproxy);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(ProxyExistsException::class, $e);
+        }
+        $this->removeProxy($toxiproxy, $proxy);
     }
 }

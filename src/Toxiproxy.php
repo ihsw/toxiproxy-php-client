@@ -35,31 +35,31 @@ class Toxiproxy
 
     /**
      * @param HttpClientException $e
-     * @throws Exception|HttpClientException
+     * @return Exception|HttpClientException
      */
     public function handleHttpClientException(HttpClientException $e)
     {
         switch ($e->getResponse()->getStatusCode()) {
             case self::CONFLICT:
-                throw new ProxyExistsException(
+                return new ProxyExistsException(
                     $e->getResponse()->getBody(),
                     $e->getCode(),
                     $e
                 );
             case self::NOT_FOUND:
-                throw new NotFoundException(
+                return new NotFoundException(
                     $e->getResponse()->getBody(),
                     $e->getCode(),
                     $e
                 );
             case self::BAD_REQUEST:
-                throw new InvalidToxicException(
+                return new InvalidToxicException(
                     $e->getResponse()->getBody(),
                     $e->getCode(),
                     $e
                 );
             default:
-                throw $e;
+                return $e;
         }
     }
 
@@ -109,7 +109,7 @@ class Toxiproxy
      * @param string $name
      * @param string $upstream
      * @param string|null $listen
-     * @return Proxy|null
+     * @return Proxy
      */
     public function create($name, $upstream, $listen = null)
     {
@@ -120,9 +120,7 @@ class Toxiproxy
                 ])
             );
         } catch (HttpClientException $e) {
-            $this->handleHttpClientException($e);
-
-            return null;
+            throw $this->handleHttpClientException($e);
         }
     }
 
