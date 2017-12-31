@@ -27,6 +27,11 @@ class ToxiproxyTest extends AbstractTest
         $toxiproxy = $this->createToxiproxy();
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy);
+
+        $this->assertEquals(self::TEST_NAME, $proxy->getName());
+        $this->assertEquals(self::TEST_UPSTREAM, $proxy->getUpstream());
+        $this->assertEquals(self::TEST_LISTEN, $proxy->getListen());
+
         $response = $toxiproxy->delete($proxy);
         $this->assertNotNull($response);
         $this->assertInstanceOf(ResponseInterface::class, $response);
