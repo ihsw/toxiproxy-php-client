@@ -26,11 +26,11 @@ class Toxiproxy
 
     /**
      * Toxiproxy constructor.
-     * @param HttpClient $httpClient
+     * @param string $baseUrl
      */
-    public function __construct(HttpClient $httpClient)
+    public function __construct($baseUrl)
     {
-        $this->httpClient = $httpClient;
+        $this->httpClient = new HttpClient(["base_uri" => $baseUrl]);
     }
 
     /**

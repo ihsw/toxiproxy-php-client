@@ -2,7 +2,6 @@
 
 namespace Ihsw\Toxiproxy\Test;
 
-use GuzzleHttp\Client as HttpClient;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\Socket\Server as SocketServer;
@@ -10,7 +9,6 @@ use React\SocketClient\Connector as SocketConnector;
 use React\SocketClient\ConnectionException as SocketConnectionException;
 use React\Stream\Stream as SocketStream;
 use PHPUnit\Framework\TestCase;
-use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
 
 abstract class AbstractTest extends TestCase
@@ -19,24 +17,6 @@ abstract class AbstractTest extends TestCase
     const TEST_UPSTREAM = "127.0.0.1:6379";
     const TEST_LISTEN = "127.0.0.1:34343";
     const TEST_BASE_URL = "http://toxiproxy:8474";
-
-    /**
-     * @return HttpClient
-     */
-    protected static function httpClientFactory()
-    {
-        return new HttpClient(["base_url" => self::TEST_BASE_URL]);
-    }
-
-    protected function handleProxy(\Closure $callback)
-    {
-        $toxiproxy = new Toxiproxy(self::httpClientFactory());
-
-        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
-        $this->assertTrue($proxy instanceof Proxy, "Create proxy was not an instance of Proxy");
-
-        $callback($proxy);
-    }
 
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
