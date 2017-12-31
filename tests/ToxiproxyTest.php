@@ -33,7 +33,6 @@ class ToxiproxyTest extends AbstractTest
         $this->assertEquals(self::TEST_LISTEN, $proxy->getListen());
 
         $response = $toxiproxy->delete($proxy);
-        $this->assertNotNull($response);
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals($response->getStatusCode(), 204);
     }
