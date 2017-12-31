@@ -2,6 +2,7 @@
 
 namespace Ihsw\Toxiproxy\Test;
 
+use Ihsw\Toxiproxy\Toxiproxy;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\Socket\Server as SocketServer;
@@ -16,7 +17,11 @@ abstract class AbstractTest extends TestCase
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
     const TEST_LISTEN = "127.0.0.1:34343";
-    const TEST_BASE_URL = "http://toxiproxy:8474";
+
+    protected function createToxiproxy()
+    {
+        return new Toxiproxy(getenv("TOXIPROXY_URL"));
+    }
 
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {

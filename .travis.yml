@@ -5,6 +5,15 @@ php:
 - 7.1
 - 7.2
 
+env:
+  global:
+  - TOXIPROXY_URL=http://localhost:8474
+
+before_install:
+- wget -O toxiproxy_2.1.0_amd64.deb https://github.com/Shopify/toxiproxy/releases/download/v2.1.0/toxiproxy_2.1.0_amd64.deb
+- sudo dpkg -i ./toxiproxy_*_amd64.deb
+- rm toxiproxy_*_amd64.deb
+- sudo service toxiproxy start
 before_script:
 - composer self-update
 - composer install --prefer-source --no-interaction --dev

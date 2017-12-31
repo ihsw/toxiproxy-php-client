@@ -11,19 +11,19 @@ class ToxiproxyTest extends AbstractTest
 {
     public function testConstructor()
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
+        $toxiproxy = $this->createToxiproxy();
         $this->assertTrue($toxiproxy instanceof Toxiproxy);
     }
 
     public function testGetHttpClient()
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
+        $toxiproxy = $this->createToxiproxy();
         $this->assertTrue($toxiproxy->getHttpClient() instanceof HttpClient);
     }
 
     public function testCreate()
     {
-        $toxiproxy = new Toxiproxy(self::TEST_BASE_URL);
+        $toxiproxy = $this->createToxiproxy();
         $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
         $this->assertTrue($proxy instanceof Proxy);
     }
