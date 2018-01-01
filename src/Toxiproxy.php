@@ -148,10 +148,14 @@ class Toxiproxy
             $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
         } catch (HttpClientException $e) {
             switch ($e->getResponse()->getStatusCode()) {
-                case 404:
+                case self::NOT_FOUND:
                     throw new NotFoundException(sprintf("Proxy not found: %s", $proxy->getName()));
                 default:
-                    throw new UnexpectedStatusCodeException(sprintf("Unexpected status code"), 204, $e);
+                    throw new UnexpectedStatusCodeException(
+                        sprintf("Unexpected status code"),
+                        $e->getResponse()->getStatusCode(),
+                        $e
+                    );
             }
         }
     }
