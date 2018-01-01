@@ -101,16 +101,6 @@ class Toxiproxy
     }
 
     /**
-     * @return array
-     */
-    public function all()
-    {
-        return array_map(function ($contents) {
-            return $this->contentsToProxy($contents);
-        }, json_decode($this->httpClient->get("/proxies")->getBody(), true));
-    }
-
-    /**
      * @param string $name
      * @param string $upstream
      * @param string|null $listen
@@ -163,30 +153,6 @@ class Toxiproxy
                 default:
                     throw new UnexpectedStatusCodeException(sprintf("Unexpected status code"), 204, $e);
             }
-        }
-    }
-
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public function exists($name)
-    {
-        return !is_null($this->get($name));
-    }
-
-    /**
-     * @return ResponseInterface
-     */
-    public function reset()
-    {
-        return $this->httpClient->get("/reset");
-    }
-
-    public function deleteAll()
-    {
-        foreach ($this->all() as $proxy) {
-            $this->delete($proxy);
         }
     }
 }
