@@ -50,4 +50,19 @@ class ToxiproxyTest extends AbstractTest
         }
         $this->removeProxy($toxiproxy, $proxy);
     }
+
+    public function testGet()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $this->assertEquals($proxy->getName(), $toxiproxy->get($proxy->getName())->getName());
+        $this->removeProxy($toxiproxy, $proxy);
+    }
+
+    public function testGetNotFound()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $toxiproxy->get("non-existent");
+        $this->assertNull($proxy);
+    }
 }

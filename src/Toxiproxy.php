@@ -110,6 +110,7 @@ class Toxiproxy
      * @param string $upstream
      * @param string|null $listen
      * @return Proxy
+     * @throws Exception|HttpClientException
      */
     public function create($name, $upstream, $listen = null)
     {
@@ -135,7 +136,7 @@ class Toxiproxy
             return $this->responseToProxy($this->httpClient->get(sprintf("/proxies/%s", $name)));
         } catch (HttpClientException $e) {
             if ($e->getResponse()->getStatusCode() !== self::NOT_FOUND) {
-                $this->handleHttpClientException($e);
+                throw $this->handleHttpClientException($e);
             }
 
             return null;
@@ -150,11 +151,9 @@ class Toxiproxy
     public function delete(Proxy $proxy)
     {
         try {
-            return $this->httpClient->delete(
-                sprintf("/proxies/%s", $proxy->getName())
-            );
+            return $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
         } catch (HttpClientException $e) {
-            $this->handleHttpClientException($e);
+            throw $this->handleHttpClientException($e);
         }
 
         return null;
