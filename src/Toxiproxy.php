@@ -4,6 +4,7 @@ namespace Ihsw\Toxiproxy;
 
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException as HttpClientException;
+use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Exception\Exception;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
@@ -59,7 +60,11 @@ class Toxiproxy
                     $e
                 );
             default:
-                return $e;
+                return new UnexpectedStatusCodeException(
+                    $e->getResponse()->getBody(),
+                    $e->getCode(),
+                    $e
+                );
         }
     }
 
@@ -145,18 +150,22 @@ class Toxiproxy
 
     /**
      * @param Proxy $proxy
-     * @return null|ResponseInterface
-     * @throws Exception|HttpClientException
+     * @throws UnexpectedStatusCodeException
      */
     public function delete(Proxy $proxy)
     {
         try {
-            return $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
+            $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
         } catch (HttpClientException $e) {
-            throw $this->handleHttpClientException($e);
+            switch ($e->getResponse()->getStatusCode()) {
+                case 204:
+                    return;
+                case 404:
+                    throw new NotFoundException(sprintf("Proxy not found: %s", $proxy->getName()));
+                default:
+                    throw new UnexpectedStatusCodeException(sprintf("Unexpected status code"), 204);
+            }
         }
-
-        return null;
     }
 
     /**

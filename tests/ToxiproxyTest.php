@@ -3,11 +3,12 @@
 namespace Ihsw\ToxyproxyTests\Integration;
 
 use GuzzleHttp\Client as HttpClient;
-use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Proxy;
 use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
+use Ihsw\Toxiproxy\Exception\NotFoundException;
+use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 
 class ToxiproxyTest extends AbstractTest
 {
@@ -34,9 +35,7 @@ class ToxiproxyTest extends AbstractTest
         $this->assertEquals(self::TEST_LISTEN, $proxy->getListen());
         $this->assertTrue($proxy->isEnabled());
 
-        $response = $toxiproxy->delete($proxy);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals($response->getStatusCode(), 204);
+        $toxiproxy->delete($proxy);
     }
 
     public function testCreateDuplicate()
@@ -47,8 +46,12 @@ class ToxiproxyTest extends AbstractTest
             $this->createProxy($toxiproxy);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ProxyExistsException::class, $e);
+            $this->removeProxy($toxiproxy, $proxy);
+
+            return;
         }
-        $this->removeProxy($toxiproxy, $proxy);
+
+        $this->assertTrue(false);
     }
 
     public function testGet()
@@ -64,5 +67,31 @@ class ToxiproxyTest extends AbstractTest
         $toxiproxy = $this->createToxiproxy();
         $proxy = $toxiproxy->get("non-existent");
         $this->assertNull($proxy);
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testDelete()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $toxiproxy->delete($this->createProxy($toxiproxy));
+    }
+
+    public function testDeleteNotFound()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $toxiproxy->delete($proxy);
+
+        try {
+            $toxiproxy->delete($proxy);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(NotFoundException::class, $e);
+
+            return;
+        }
+
+        $this->assertTrue(false);
     }
 }

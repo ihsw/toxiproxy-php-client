@@ -36,8 +36,6 @@ abstract class AbstractTest extends TestCase
      */
     protected function removeProxy(Toxiproxy $toxiproxy, Proxy $proxy)
     {
-        $response = $toxiproxy->delete($proxy);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals($response->getStatusCode(), 204);
+        $toxiproxy->delete($proxy);
     }
 }
