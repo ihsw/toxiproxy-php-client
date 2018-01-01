@@ -3,12 +3,16 @@
 namespace Ihsw\ToxyproxyTests\Integration;
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\Proxy;
+use GuzzleHttp\Exception\ClientException as HttpClientException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Exception\InvalidToxicException;
+use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
-use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 
 class ToxiproxyTest extends AbstractTest
 {
@@ -93,5 +97,21 @@ class ToxiproxyTest extends AbstractTest
         }
 
         $this->assertTrue(false);
+    }
+
+    public function testHandleHttpClientException()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $table = [
+            ["status" => Toxiproxy::CONFLICT, "expected" => ProxyExistsException::class],
+            ["status" => Toxiproxy::NOT_FOUND, "expected" => NotFoundException::class],
+            ["status" => Toxiproxy::BAD_REQUEST, "expected" => InvalidToxicException::class],
+            ["status" => -1, "expected" => UnexpectedStatusCodeException::class]
+        ];
+
+        foreach ($table as $item) {
+            $e = new HttpClientException("", new Request("POST", "/"), new Response($item["status"]));
+            $this->assertInstanceOf($item["expected"], $toxiproxy->handleHttpClientException($e));
+        }
     }
 }
