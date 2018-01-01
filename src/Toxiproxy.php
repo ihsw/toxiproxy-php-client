@@ -161,11 +161,7 @@ class Toxiproxy
                 case 404:
                     throw new NotFoundException(sprintf("Proxy not found: %s", $proxy->getName()));
                 default:
-                    throw new UnexpectedStatusCodeException(
-                        sprintf("Unexpected status code"),
-                        204,
-                        $e
-                    );
+                    throw new UnexpectedStatusCodeException(sprintf("Unexpected status code"), 204, $e);
             }
         }
     }
