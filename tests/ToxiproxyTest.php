@@ -31,12 +31,12 @@ class ToxiproxyTest extends AbstractTest
     public function testCreate()
     {
         $toxiproxy = $this->createToxiproxy();
-        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
+        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, $this->getListen());
         $this->assertTrue($proxy instanceof Proxy);
 
         $this->assertEquals(self::TEST_NAME, $proxy->getName());
         $this->assertEquals(self::TEST_UPSTREAM, $proxy->getUpstream());
-        list($ip, $port) = explode(":", self::TEST_LISTEN);
+        list($ip, $port) = explode(":", $this->getListen());
         $listen = sprintf("%s:%s", gethostbyname($ip), $port);
         $this->assertEquals($listen, $proxy->getListen());
         $this->assertTrue($proxy->isEnabled());

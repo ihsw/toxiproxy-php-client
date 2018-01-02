@@ -7,7 +7,7 @@ php:
 
 env:
   global:
-  - TOXIPROXY_URL=http://localhost:8474
+  - TOXIPROXY_HOST=localhost
 
 before_install:
 - wget -O toxiproxy_2.1.0_amd64.deb https://github.com/Shopify/toxiproxy/releases/download/v2.1.0/toxiproxy_2.1.0_amd64.deb

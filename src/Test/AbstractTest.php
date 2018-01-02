@@ -11,13 +11,28 @@ abstract class AbstractTest extends TestCase
 {
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
-    const TEST_LISTEN = "toxiproxy:34343";
 
     use AssertionHelpers;
 
+    /**
+     * @return Toxiproxy
+     */
     protected function createToxiproxy()
     {
-        return new Toxiproxy(getenv("TOXIPROXY_URL"));
+        return new Toxiproxy(sprintf("http://%s:8474", $this->getToxiproxyHost()));
+    }
+
+    /**
+     * @return string
+     */
+    private function getToxiproxyHost()
+    {
+        return getenv("TOXIPROXY_HOST");
+    }
+
+    protected function getListen()
+    {
+        return sprintf("%s:34343", $this->getToxiproxyHost());
     }
 
     /**
@@ -27,7 +42,7 @@ abstract class AbstractTest extends TestCase
     protected function createProxy(Toxiproxy $toxiproxy)
     {
         $toxiproxy = $this->createToxiproxy();
-        return $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, self::TEST_LISTEN);
+        return $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, $this->getListen());
     }
 
     /**
