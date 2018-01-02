@@ -11,7 +11,7 @@ abstract class AbstractTest extends TestCase
 {
     const TEST_NAME = "ihsw_test_redis_master";
     const TEST_UPSTREAM = "127.0.0.1:6379";
-    const TEST_LISTEN = "127.0.0.1:34343";
+    const TEST_LISTEN = "toxiproxy:34343";
 
     use AssertionHelpers;
 

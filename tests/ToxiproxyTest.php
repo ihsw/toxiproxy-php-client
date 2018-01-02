@@ -36,8 +36,11 @@ class ToxiproxyTest extends AbstractTest
 
         $this->assertEquals(self::TEST_NAME, $proxy->getName());
         $this->assertEquals(self::TEST_UPSTREAM, $proxy->getUpstream());
-        $this->assertEquals(self::TEST_LISTEN, $proxy->getListen());
+        list($ip, $port) = explode(":", self::TEST_LISTEN);
+        $listen = sprintf("%s:%s", gethostbyname($ip), $port);
+        $this->assertEquals($listen, $proxy->getListen());
         $this->assertTrue($proxy->isEnabled());
+        $this->assertProxyAvailable($proxy);
 
         $toxiproxy->delete($proxy);
     }
