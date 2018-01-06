@@ -2,7 +2,7 @@
 
 namespace Ihsw\Toxiproxy;
 
-class Proxy
+class Proxy implements \JsonSerializable
 {
     const UPSTREAM = "upstream";
     const DOWNSTREAM = "downstream";
@@ -119,5 +119,18 @@ class Proxy
     {
         $this->enabled = $enabled;
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "name" => $this->name,
+            "listen" => $this->listen,
+            "upstream" => $this->upstream,
+            "enabled" => $this->enabled
+        ];
     }
 }
