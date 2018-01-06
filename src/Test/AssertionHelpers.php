@@ -45,7 +45,6 @@ trait AssertionHelpers
         $clientLoop = EventLoopFactory::create();
         $connector = new SocketConnector($clientLoop);
         $info = sprintf("%s:%s", $settings["ip"], $settings["port"]);
-        printf("%s\n", $info);
         $promise = $connector->connect($info)
             ->then(function (ConnectionInterface $conn) use ($clientLoop) {
                 $conn->close();
