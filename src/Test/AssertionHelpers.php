@@ -49,8 +49,7 @@ trait AssertionHelpers
             ->then(function (ConnectionInterface $conn) use ($clientLoop) {
                 $conn->close();
                 return true;
-            }, function (\Exception $e) {
-                throw $e;
+            }, function () {
                 return false;
             });
         $clientLoop->run();

@@ -129,4 +129,18 @@ class ToxiproxyTest extends AbstractTest
 
         $toxiproxy->delete($updatedProxy);
     }
+
+    public function testUpdateDisabled()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        $proxy = $this->createProxy($toxiproxy);
+        $this->assertProxyAvailable($proxy);
+
+        $proxy->setEnabled(false);
+        $proxy = $toxiproxy->update($proxy);
+        $this->assertProxyUnavailable($proxy);
+
+        $toxiproxy->delete($proxy);
+    }
 }
