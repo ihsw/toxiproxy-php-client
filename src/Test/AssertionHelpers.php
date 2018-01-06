@@ -15,8 +15,10 @@ trait AssertionHelpers
      */
     protected function assertProxyAvailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy->getListen());
-        $this->assertConnection(["ip" => $ip, "port" => $port], $message);
+        $this->assertConnection(
+            ["ip" => $proxy->getListenIp(), "port" => $proxy->getListenPort()],
+            $message
+        );
     }
 
     /**
@@ -25,8 +27,10 @@ trait AssertionHelpers
      */
     protected function assertProxyUnavailable(Proxy $proxy, $message = null)
     {
-        list($ip, $port) = explode(":", $proxy->getListen());
-        $this->assertConnection(["ip" => $ip, "port" => $port, "match" => false], $message);
+        $this->assertConnection(
+            ["ip" => $proxy->getListenIp(), "port" => $proxy->getListenPort(), "match" => false],
+            $message
+        );
     }
 
     /**
