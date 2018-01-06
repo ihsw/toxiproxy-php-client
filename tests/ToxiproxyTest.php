@@ -31,11 +31,11 @@ class ToxiproxyTest extends AbstractTest
     public function testCreate()
     {
         $toxiproxy = $this->createToxiproxy();
-        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, $this->getListen());
+        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $this->getListen());
         $this->assertTrue($proxy instanceof Proxy);
 
         $this->assertEquals(self::TEST_NAME, $proxy->getName());
-        $this->assertEquals(self::TEST_UPSTREAM, $proxy->getUpstream());
+        $this->assertEquals(self::TEST_UPSTREAM_REDIS, $proxy->getUpstream());
         list($ip, $port) = explode(":", $this->getListen());
         $listen = sprintf("%s:%s", gethostbyname($ip), $port);
         $this->assertEquals($listen, $proxy->getListen());
@@ -116,5 +116,17 @@ class ToxiproxyTest extends AbstractTest
             $e = new HttpClientException("", new Request("POST", "/"), new Response($item["status"]));
             $this->assertInstanceOf($item["expected"], $toxiproxy->handleHttpClientException($e));
         }
+    }
+
+    public function testUpdate()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+
+        $proxy->setUpstream(self::TEST_UPSTREAM_PSQL);
+        $updatedProxy = $toxiproxy->update($proxy);
+        $this->assertEquals($proxy->jsonSerialize(), $updatedProxy->jsonSerialize());
+
+        $toxiproxy->delete($updatedProxy);
     }
 }

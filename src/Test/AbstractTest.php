@@ -10,7 +10,8 @@ use Ihsw\Toxiproxy\Proxy;
 abstract class AbstractTest extends TestCase
 {
     const TEST_NAME = "ihsw_test_redis_master";
-    const TEST_UPSTREAM = "127.0.0.1:6379";
+    const TEST_UPSTREAM_REDIS = "127.0.0.1:6379";
+    const TEST_UPSTREAM_PSQL = "127.0.0.1:5432";
 
     use AssertionHelpers;
 
@@ -42,7 +43,7 @@ abstract class AbstractTest extends TestCase
     protected function createProxy(Toxiproxy $toxiproxy)
     {
         $toxiproxy = $this->createToxiproxy();
-        return $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM, $this->getListen());
+        return $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $this->getListen());
     }
 
     /**

@@ -147,16 +147,18 @@ class Toxiproxy
         try {
             $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
         } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case self::NOT_FOUND:
-                    throw new NotFoundException(sprintf("Proxy not found: %s", $proxy->getName()));
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        sprintf("Unexpected status code"),
-                        $e->getResponse()->getStatusCode(),
-                        $e
-                    );
-            }
+            throw $this->handleHttpClientException($e);
+        }
+    }
+
+    public function update(Proxy $proxy)
+    {
+        try {
+            return $this->responseToProxy($this->httpClient->post(sprintf("/proxies/%s", $proxy->getName()), [
+                "body" => json_encode($proxy)
+            ]));
+        } catch (HttpClientException $e) {
+            throw $this->handleHttpClientException($e);
         }
     }
 }
