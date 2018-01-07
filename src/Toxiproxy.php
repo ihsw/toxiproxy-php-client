@@ -20,6 +20,8 @@ class Toxiproxy
     const NOT_FOUND = 404;
     const CONFLICT = 409;
 
+    use UrlHelpers;
+
     /**
      * @var HttpClient
      */
@@ -110,8 +112,9 @@ class Toxiproxy
     public function create($name, $upstream, $listen = null)
     {
         try {
+            $route = $this->createProxyRoute();
             return $this->responseToProxy(
-                $this->httpClient->post("/proxies", [
+                $this->httpClient->request($route["method"], $route["uri"], [
                     "body" => json_encode(["name" => $name, "upstream" => $upstream, "listen" => $listen])
                 ])
             );
@@ -128,7 +131,8 @@ class Toxiproxy
     public function get($name)
     {
         try {
-            return $this->responseToProxy($this->httpClient->get(sprintf("/proxies/%s", $name)));
+            $route = $this->getProxyRoute($name);
+            return $this->responseToProxy($this->httpClient->request($route["method"], $route["uri"]));
         } catch (HttpClientException $e) {
             if ($e->getResponse()->getStatusCode() !== self::NOT_FOUND) {
                 throw $this->handleHttpClientException($e);
@@ -145,7 +149,8 @@ class Toxiproxy
     public function delete(Proxy $proxy)
     {
         try {
-            $this->httpClient->delete(sprintf("/proxies/%s", $proxy->getName()));
+            $route = $this->deleteProxyRoute($proxy);
+            $this->httpClient->request($route["method"], $route["uri"]);
         } catch (HttpClientException $e) {
             throw $this->handleHttpClientException($e);
         }
@@ -154,7 +159,8 @@ class Toxiproxy
     public function update(Proxy $proxy)
     {
         try {
-            return $this->responseToProxy($this->httpClient->post(sprintf("/proxies/%s", $proxy->getName()), [
+            $route = $this->updateProxyRoute($proxy);
+            return $this->responseToProxy($this->httpClient->request($route["method"], $route["uri"], [
                 "body" => json_encode($proxy)
             ]));
         } catch (HttpClientException $e) {
