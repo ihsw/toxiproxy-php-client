@@ -1,14 +1,10 @@
 <?php
 
+namespace Ihsw\Toxiproxy\Test;
+
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\ClientException as HttpClientException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
-use Ihsw\Toxiproxy\Test\AbstractTest;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
-use Ihsw\Toxiproxy\Exception\InvalidToxicException;
-use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 

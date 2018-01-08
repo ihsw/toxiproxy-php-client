@@ -1,6 +1,6 @@
 <?php
 
-use Ihsw\Toxiproxy\Test\AbstractTest;
+namespace Ihsw\Toxiproxy\Test;
 
 class ProxyTest extends AbstractTest
 {
