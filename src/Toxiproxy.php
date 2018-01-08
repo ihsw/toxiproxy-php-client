@@ -143,6 +143,19 @@ class Toxiproxy
     }
 
     /**
+     * @return Proxy[]
+     */
+    public function getAll()
+    {
+        $route = $this->getProxiesRoute();
+        $res = $this->httpClient->request($route["method"], $route["uri"]);
+        $body = json_decode($res->getBody(), true);
+        return array_map(function ($contents) {
+            return $this->contentsToProxy($contents);
+        }, array_values($body));
+    }
+
+    /**
      * @param Proxy $proxy
      * @throws NotFoundException|UnexpectedStatusCodeException
      */

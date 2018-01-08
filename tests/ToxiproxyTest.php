@@ -76,6 +76,15 @@ class ToxiproxyTest extends AbstractTest
         $this->assertNull($proxy);
     }
 
+    public function testGetAll()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $proxies = $toxiproxy->getAll();
+        $this->assertEquals($proxy, $proxies[0]);
+        $this->removeProxy($toxiproxy, $proxy);
+    }
+
     /**
      * @doesNotPerformAssertions
      */
