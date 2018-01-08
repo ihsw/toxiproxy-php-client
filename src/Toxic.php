@@ -27,6 +27,11 @@ class Toxic
     private $type;
 
     /**
+     * @var string
+     */
+    private $stream;
+
+    /**
      * @var float
      */
     private $toxicity;
@@ -55,10 +60,29 @@ class Toxic
 
     /**
      * @param string $name
+     * @return $this
      */
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStream()
+    {
+        return $this->stream;
+    }
+
+    /**
+     * @param string $stream
+     */
+    public function setStream($stream)
+    {
+        $this->stream = $stream;
+        return $this;
     }
 
     /**
@@ -71,10 +95,12 @@ class Toxic
 
     /**
      * @param string $type
+     * @return $this
      */
     public function setType($type)
     {
         $this->type = $type;
+        return $this;
     }
 
     /**
@@ -87,10 +113,12 @@ class Toxic
 
     /**
      * @param float $toxicity
+     * @return $this
      */
     public function setToxicity($toxicity)
     {
         $this->toxicity = $toxicity;
+        return $this;
     }
 
     /**
@@ -103,9 +131,11 @@ class Toxic
 
     /**
      * @param array $attributes
+     * @return $this
      */
     public function setAttributes($attributes)
     {
         $this->attributes = $attributes;
+        return $this;
     }
 }

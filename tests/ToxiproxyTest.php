@@ -1,7 +1,5 @@
 <?php
 
-namespace Ihsw\ToxyproxyTests\Integration;
-
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException as HttpClientException;
 use GuzzleHttp\Psr7\Request;
@@ -109,22 +107,6 @@ class ToxiproxyTest extends AbstractTest
         }
 
         $this->assertTrue(false);
-    }
-
-    public function testHandleHttpClientException()
-    {
-        $toxiproxy = $this->createToxiproxy();
-        $table = [
-            ["status" => Toxiproxy::CONFLICT, "expected" => ProxyExistsException::class],
-            ["status" => Toxiproxy::NOT_FOUND, "expected" => NotFoundException::class],
-            ["status" => Toxiproxy::BAD_REQUEST, "expected" => InvalidToxicException::class],
-            ["status" => -1, "expected" => UnexpectedStatusCodeException::class]
-        ];
-
-        foreach ($table as $item) {
-            $e = new HttpClientException("", new Request("POST", "/"), new Response($item["status"]));
-            $this->assertInstanceOf($item["expected"], $toxiproxy->handleHttpClientException($e));
-        }
     }
 
     public function testUpdate()

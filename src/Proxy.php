@@ -2,10 +2,17 @@
 
 namespace Ihsw\Toxiproxy;
 
+use GuzzleHttp\Exception\ClientException as HttpClientException;
+use Psr\Http\Message\ResponseInterface;
+use Ihsw\Toxiproxy\Exception\ToxicExistsException;
+use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
+
 class Proxy implements \JsonSerializable
 {
     const UPSTREAM = "upstream";
     const DOWNSTREAM = "downstream";
+
+    use UrlHelpers;
 
     /**
      * @var Toxiproxy
@@ -132,5 +139,84 @@ class Proxy implements \JsonSerializable
             "upstream" => $this->upstream,
             "enabled" => $this->enabled
         ];
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return Toxic
+     */
+    public function responseToToxic(ResponseInterface $response)
+    {
+        return $this->contentsToToxic(json_decode($response->getBody(), true));
+    }
+
+    /**
+     * @param array $contents
+     * @return Toxic
+     */
+    private function contentsToToxic(array $contents)
+    {
+        $toxic = new Toxic($this);
+        $toxic->setName($contents["name"])
+            ->setType($contents["type"])
+            ->setStream($contents["stream"])
+            ->setToxicity($contents["toxicity"])
+            ->setAttributes($contents["attributes"]);
+
+        return $toxic;
+    }
+
+    /**
+     * @return \GuzzleHttp\Client
+     */
+    public function getHttpClient()
+    {
+        return $this->toxiproxy->getHttpClient();
+    }
+
+    /**
+     * @return Toxic[]
+     */
+    public function getAll()
+    {
+        $route = $this->getToxicsRoute($this);
+        $res = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        $body = json_decode($res->getBody(), true);
+        return array_map(function ($contents) {
+            return $this->contentsToToxic($contents);
+        }, array_values($body));
+    }
+
+    public function create($type, $stream, $toxicity, $attributes, $name = null)
+    {
+        try {
+            $route = $this->createToxicRoute($this);
+            return $this->responseToToxic(
+                $this->getHttpClient()->request($route["method"], $route["uri"], [
+                    "body" => json_encode([
+                        "name" => $name,
+                        "stream" => $stream,
+                        "type" => $type,
+                        "toxicity" => $toxicity,
+                        "attributes" => $attributes
+                    ])
+                ])
+            );
+        } catch (HttpClientException $e) {
+            switch ($e->getResponse()->getStatusCode()) {
+                case StatusCodes::CONFLICT:
+                    throw new ToxicExistsException(
+                        $e->getResponse()->getBody(),
+                        $e->getCode(),
+                        $e
+                    );
+                default:
+                    throw new UnexpectedStatusCodeException(
+                        $e->getResponse()->getBody(),
+                        $e->getCode(),
+                        $e
+                    );
+            }
+        }
     }
 }
