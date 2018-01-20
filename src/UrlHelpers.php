@@ -75,14 +75,14 @@ trait UrlHelpers
 
     /**
      * @param Proxy $proxy
-     * @param Toxic $toxic
+     * @param string $name
      * @return array
      */
-    public function getToxicRoute(Proxy $proxy, Toxic $toxic)
+    public function getToxicRoute(Proxy $proxy, $name)
     {
         return [
             "method" => "GET",
-            "uri" => sprintf("/proxies/%s/toxics/%s", $proxy->getName(), $toxic->getName())
+            "uri" => sprintf("/proxies/%s/toxics/%s", $proxy->getName(), $name)
         ];
     }
 

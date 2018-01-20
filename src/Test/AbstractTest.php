@@ -3,9 +3,11 @@
 namespace Ihsw\Toxiproxy\Test;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Toxic;
+use Ihsw\Toxiproxy\StreamDirections;
+use Ihsw\Toxiproxy\ToxicTypes;
 
 abstract class AbstractTest extends TestCase
 {
@@ -53,5 +55,23 @@ abstract class AbstractTest extends TestCase
     protected function removeProxy(Toxiproxy $toxiproxy, Proxy $proxy)
     {
         $toxiproxy->delete($proxy);
+    }
+
+    /**
+     * @param Proxy $proxy
+     * @return Toxic
+     */
+    protected function createToxic(Proxy  $proxy)
+    {
+        $attr = [
+            "latency" => 1000,
+            "jitter" => 50
+        ];
+        return $proxy->create(ToxicTypes::LATENCY, StreamDirections::UPSTREAM, 1.0, $attr);
+    }
+
+    protected function removeToxic(Proxy $proxy, Toxic $toxic)
+    {
+        $proxy->delete($toxic);
     }
 }

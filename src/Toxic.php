@@ -2,15 +2,8 @@
 
 namespace Ihsw\Toxiproxy;
 
-class Toxic
+class Toxic implements \JsonSerializable
 {
-    const LATENCY = "latency";
-    const DOWN = "down";
-    const BANDWIDTH = "bandwidth";
-    const SLOW_CLOSE = "slow_close";
-    const TIMEOUT = "timeout";
-    const SLICER = "slicer";
-
     /**
      * @var Proxy
      */
@@ -137,5 +130,19 @@ class Toxic
     {
         $this->attributes = $attributes;
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "name" => $this->name,
+            "stream" => $this->stream,
+            "type" => $this->type,
+            "toxicity" => $this->toxicity,
+            "attributes" => $this->attributes
+        ];
     }
 }
