@@ -158,6 +158,10 @@ class Toxiproxy
         }
     }
 
+    /**
+     * @param Proxy $proxy
+     * @return Proxy
+     */
     public function update(Proxy $proxy)
     {
         try {
