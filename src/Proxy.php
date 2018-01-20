@@ -240,11 +240,7 @@ class Proxy implements \JsonSerializable
         } catch (HttpClientException $e) {
             switch ($e->getResponse()->getStatusCode()) {
                 case StatusCodes::NOT_FOUND:
-                    throw new NotFoundException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
+                    return null;
                 default:
                     throw new UnexpectedStatusCodeException(
                         $e->getResponse()->getBody(),

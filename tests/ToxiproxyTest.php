@@ -79,13 +79,11 @@ class ToxiproxyTest extends AbstractTest
         $this->removeProxy($toxiproxy, $proxy);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDelete()
     {
         $toxiproxy = $this->createToxiproxy();
         $toxiproxy->delete($this->createProxy($toxiproxy));
+        $this->assertTrue(true);
     }
 
     public function testDeleteNotFound()
@@ -112,7 +110,7 @@ class ToxiproxyTest extends AbstractTest
 
         $proxy->setUpstream(self::TEST_UPSTREAM_PSQL);
         $updatedProxy = $toxiproxy->update($proxy);
-        $this->assertEquals($proxy->jsonSerialize(), $updatedProxy->jsonSerialize());
+        $this->assertEquals($proxy, $updatedProxy);
 
         $toxiproxy->delete($updatedProxy);
     }
@@ -129,5 +127,20 @@ class ToxiproxyTest extends AbstractTest
         $this->assertProxyUnavailable($proxy);
 
         $toxiproxy->delete($proxy);
+    }
+
+    public function testUpdateNotFound()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        try {
+            $toxiproxy->update(new Proxy($toxiproxy));
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(NotFoundException::class, $e);
+
+            return;
+        }
+
+        $this->assertTrue(false);
     }
 }
