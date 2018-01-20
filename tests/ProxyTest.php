@@ -21,4 +21,20 @@ class ProxyTest extends AbstractTest
 
         $toxiproxy->delete($proxy);
     }
+
+    public function testGetAll()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+
+        $attr = [
+            "latency" => 1000,
+            "jitter" => 50
+        ];
+        $toxic = $proxy->create("latency", "upstream", 1.0, $attr);
+        $toxics = $proxy->getAll();
+        $this->assertEquals($toxic, $toxics[0]);
+
+        $toxiproxy->delete($proxy);
+    }
 }
