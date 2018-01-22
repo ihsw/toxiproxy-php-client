@@ -31,11 +31,13 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy);
+
         try {
             $this->createToxic($proxy);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ToxicExistsException::class, $e);
+            $this->removeToxic($proxy, $toxic);
             $this->removeProxy($toxiproxy, $proxy);
 
             return;
@@ -53,7 +55,8 @@ class ProxyTest extends AbstractTest
         $toxics = $proxy->getAll();
         $this->assertEquals($toxic, $toxics[0]);
 
-        $toxiproxy->delete($proxy);
+        $this->removeToxic($proxy, $toxic);
+        $this->removeProxy($toxiproxy, $proxy);
     }
 
     public function testGet()
@@ -64,7 +67,8 @@ class ProxyTest extends AbstractTest
 
         $this->assertEquals($toxic, $proxy->get($toxic->getName()));
 
-        $toxiproxy->delete($proxy);
+        $this->removeToxic($proxy, $toxic);
+        $this->removeProxy($toxiproxy, $proxy);
     }
 
     public function testGetNotFound()
@@ -75,7 +79,7 @@ class ProxyTest extends AbstractTest
         $toxic = $proxy->get("non-existent");
         $this->assertNull($toxic);
 
-        $toxiproxy->delete($proxy);
+        $this->removeProxy($toxiproxy, $proxy);
     }
 
     public function testUpdate()
@@ -88,7 +92,8 @@ class ProxyTest extends AbstractTest
         $updatedToxic = $proxy->update($toxic);
         $this->assertEquals($updatedToxic->getToxicity(), $toxic->getToxicity());
 
-        $toxiproxy->delete($proxy);
+        $this->removeToxic($proxy, $toxic);
+        $this->removeProxy($toxiproxy, $proxy);
     }
 
     public function testUpdateNotFound()
@@ -102,7 +107,7 @@ class ProxyTest extends AbstractTest
             $proxy->update($toxic);
         } catch (\Exception $e) {
             $this->assertInstanceOf(NotFoundException::class, $e);
-            $toxiproxy->delete($proxy);
+            $this->removeProxy($toxiproxy, $proxy);
 
             return;
         }
@@ -115,9 +120,11 @@ class ProxyTest extends AbstractTest
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
         $toxic = $this->createToxic($proxy);
+
         $proxy->delete($toxic);
-        $toxiproxy->delete($proxy);
         $this->assertTrue(true);
+
+        $this->removeProxy($toxiproxy, $proxy);
     }
 
     public function testDeleteNotFound()
@@ -131,7 +138,7 @@ class ProxyTest extends AbstractTest
             $proxy->delete($toxic);
         } catch (\Exception $e) {
             $this->assertInstanceOf(NotFoundException::class, $e);
-            $toxiproxy->delete($proxy);
+            $this->removeProxy($toxiproxy, $proxy);
 
             return;
         }
