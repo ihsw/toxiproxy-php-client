@@ -78,18 +78,18 @@ class ProxyTest extends AbstractTest
         $toxiproxy->delete($proxy);
     }
 
-//    public function testUpdate()
-//    {
-//        $toxiproxy = $this->createToxiproxy();
-//        $proxy = $this->createProxy($toxiproxy);
-//        $toxic = $this->createToxic($proxy);
-//
-//        $toxic->setStream(StreamDirections::DOWNSTREAM);
-//        $updatedToxic = $proxy->update($toxic);
-//        $this->assertEquals($updatedToxic->getStream(), $toxic->getStream());
-//
-//        $toxiproxy->delete($proxy);
-//    }
+    public function testUpdate()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $toxic = $this->createToxic($proxy);
+
+        $toxic->setToxicity(0.5);
+        $updatedToxic = $proxy->update($toxic);
+        $this->assertEquals($updatedToxic->getToxicity(), $toxic->getToxicity());
+
+        $toxiproxy->delete($proxy);
+    }
 
     public function testDelete()
     {
