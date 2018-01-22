@@ -62,15 +62,13 @@ abstract class AbstractTest extends TestCase
 
     /**
      * @param Proxy $proxy
+     * @param string $type
+     * @param array $attr
      * @return Toxic
      */
-    protected function createToxic(Proxy  $proxy)
+    protected function createToxic(Proxy $proxy, $type, array $attr)
     {
-        $attr = [
-            "latency" => 1000,
-            "jitter" => 50
-        ];
-        return $proxy->create(ToxicTypes::LATENCY, StreamDirections::UPSTREAM, 1.0, $attr);
+        return $proxy->create($type, StreamDirections::UPSTREAM, 1.0, $attr);
     }
 
     protected function removeToxic(Proxy $proxy, Toxic $toxic)

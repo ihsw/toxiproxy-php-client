@@ -146,9 +146,8 @@ class Proxy implements \JsonSerializable
      */
     private function contentsToToxic(array $contents)
     {
-        $toxic = new Toxic($this);
-        $toxic->setName($contents["name"])
-            ->setType($contents["type"])
+        $toxic = new Toxic($this, $contents["name"]);
+        $toxic->setType($contents["type"])
             ->setStream($contents["stream"])
             ->setToxicity($contents["toxicity"])
             ->setAttributes($contents["attributes"]);

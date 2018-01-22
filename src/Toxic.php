@@ -37,10 +37,12 @@ class Toxic implements \JsonSerializable
     /**
      * Toxic constructor.
      * @param Proxy $proxy
+     * @param string $name
      */
-    public function __construct(Proxy $proxy)
+    public function __construct(Proxy $proxy, $name)
     {
         $this->proxy = $proxy;
+        $this->name = $name;
     }
 
     /**
@@ -49,16 +51,6 @@ class Toxic implements \JsonSerializable
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @param string $name
-     * @return $this
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
     }
 
     /**
@@ -71,6 +63,7 @@ class Toxic implements \JsonSerializable
 
     /**
      * @param string $stream
+     * @return $this
      */
     public function setStream($stream)
     {

@@ -31,10 +31,16 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
         try {
-            $this->createToxic($proxy);
+            $this->createToxic($proxy, ToxicTypes::LATENCY, [
+                "latency" => 1000,
+                "jitter" => 500
+            ]);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ToxicExistsException::class, $e);
             $this->removeToxic($proxy, $toxic);
@@ -50,7 +56,10 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
         $toxics = $proxy->getAll();
         $this->assertEquals($toxic, $toxics[0]);
@@ -63,7 +72,10 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
         $this->assertEquals($toxic, $proxy->get($toxic->getName()));
 
@@ -86,11 +98,16 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
-        $toxic->setToxicity(0.5);
+        $toxic->setType(ToxicTypes::BANDWIDTH)
+            ->setAttributes(["rate" => 1000])
+            ->setToxicity(0.5);
         $updatedToxic = $proxy->update($toxic);
-        $this->assertEquals($updatedToxic->getToxicity(), $toxic->getToxicity());
+        $this->assertEquals($updatedToxic, $toxic);
 
         $this->removeToxic($proxy, $toxic);
         $this->removeProxy($toxiproxy, $proxy);
@@ -100,9 +117,12 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
-        $proxy->delete($toxic);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
+        $proxy->delete($toxic);
         try {
             $proxy->update($toxic);
         } catch (\Exception $e) {
@@ -119,7 +139,10 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
         $proxy->delete($toxic);
         $this->assertTrue(true);
@@ -131,9 +154,12 @@ class ProxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
-        $toxic = $this->createToxic($proxy);
-        $proxy->delete($toxic);
+        $toxic = $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
 
+        $proxy->delete($toxic);
         try {
             $proxy->delete($toxic);
         } catch (\Exception $e) {
