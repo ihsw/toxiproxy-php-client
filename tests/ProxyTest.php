@@ -1,6 +1,7 @@
 <?php
 
 namespace Ihsw\Toxiproxy\Test;
+
 use Ihsw\Toxiproxy\Exception\ToxicExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\ToxicTypes;
@@ -32,7 +33,6 @@ class ProxyTest extends AbstractTest
         $proxy = $this->createProxy($toxiproxy);
         $this->createToxic($proxy);
         try {
-
             $this->createToxic($proxy);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ToxicExistsException::class, $e);
