@@ -47,21 +47,13 @@ class Proxy implements \JsonSerializable
     /**
      * Proxy constructor.
      * @param Toxiproxy $toxiproxy
+     * @param string $name
      */
-    public function __construct(Toxiproxy $toxiproxy)
+    public function __construct(Toxiproxy $toxiproxy, $name)
     {
         $this->toxiproxy = $toxiproxy;
-        $this->toxics = [];
-    }
-
-    /**
-     * @param $name
-     * @return $this
-     */
-    public function setName($name)
-    {
         $this->name = $name;
-        return $this;
+        $this->toxics = [];
     }
 
     /**

@@ -33,9 +33,13 @@ abstract class AbstractTest extends TestCase
         return getenv("TOXIPROXY_HOST");
     }
 
-    protected function getListen()
+    /**
+     * @param int $listen
+     * @return string
+     */
+    protected function getListen($listen = 34343)
     {
-        return sprintf("%s:34343", $this->getToxiproxyHost());
+        return sprintf("%s:%s", $this->getToxiproxyHost(), $listen);
     }
 
     /**
@@ -44,7 +48,6 @@ abstract class AbstractTest extends TestCase
      */
     protected function createProxy(Toxiproxy $toxiproxy)
     {
-        $toxiproxy = $this->createToxiproxy();
         return $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $this->getListen());
     }
 

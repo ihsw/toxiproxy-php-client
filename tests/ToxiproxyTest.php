@@ -108,7 +108,9 @@ class ToxiproxyTest extends AbstractTest
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
 
-        $proxy->setUpstream(self::TEST_UPSTREAM_PSQL);
+        $proxy->setListen($this->getListen(43434))
+            ->setUpstream(self::TEST_UPSTREAM_PSQL)
+            ->setEnabled(false);
         $updatedProxy = $toxiproxy->update($proxy);
         $this->assertEquals($proxy, $updatedProxy);
 
@@ -134,7 +136,7 @@ class ToxiproxyTest extends AbstractTest
         $toxiproxy = $this->createToxiproxy();
 
         try {
-            $toxiproxy->update(new Proxy($toxiproxy));
+            $toxiproxy->update(new Proxy($toxiproxy, "not-found"));
         } catch (\Exception $e) {
             $this->assertInstanceOf(NotFoundException::class, $e);
 

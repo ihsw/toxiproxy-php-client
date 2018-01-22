@@ -51,9 +51,8 @@ class Toxiproxy
      */
     private function contentsToProxy(array $contents)
     {
-        $proxy = new Proxy($this);
+        $proxy = new Proxy($this, $contents["name"]);
         $proxy->setEnabled($contents["enabled"])
-            ->setName($contents["name"])
             ->setUpstream($contents["upstream"])
             ->setListen($contents["listen"]);
 
