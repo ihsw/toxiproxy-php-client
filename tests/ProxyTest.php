@@ -91,6 +91,25 @@ class ProxyTest extends AbstractTest
         $toxiproxy->delete($proxy);
     }
 
+    public function testUpdateNotFound()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $toxic = $this->createToxic($proxy);
+        $proxy->delete($toxic);
+
+        try {
+            $proxy->update($toxic);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(NotFoundException::class, $e);
+            $toxiproxy->delete($proxy);
+
+            return;
+        }
+
+        $this->assertTrue(false);
+    }
+
     public function testDelete()
     {
         $toxiproxy = $this->createToxiproxy();
@@ -107,7 +126,6 @@ class ProxyTest extends AbstractTest
         $proxy = $this->createProxy($toxiproxy);
         $toxic = $this->createToxic($proxy);
         $proxy->delete($toxic);
-
 
         try {
             $proxy->delete($toxic);
