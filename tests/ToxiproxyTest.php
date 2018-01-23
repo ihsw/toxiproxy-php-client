@@ -232,4 +232,11 @@ class ToxiproxyTest extends AbstractTest
         $toxics = $proxy->getAll();
         $this->assertEmpty($toxics);
     }
+
+    public function testVersion()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        $this->assertNotEmpty($toxiproxy->version());
+    }
 }

@@ -237,4 +237,14 @@ class Toxiproxy
                 );
         }
     }
+
+    /**
+     * @return string
+     */
+    public function version()
+    {
+        $route = $this->versionRoute();
+        return $this->httpClient->request($route["method"], $route["uri"])
+            ->getBody();
+    }
 }
