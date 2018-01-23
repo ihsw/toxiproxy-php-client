@@ -25,13 +25,12 @@ class ToxiproxyTest extends AbstractTest
     public function testCreate()
     {
         $toxiproxy = $this->createToxiproxy();
-        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $this->getListen());
+        $listen = $this->getListen();
+        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $listen);
         $this->assertTrue($proxy instanceof Proxy);
 
         $this->assertEquals(self::TEST_NAME, $proxy->getName());
         $this->assertEquals(self::TEST_UPSTREAM_REDIS, $proxy->getUpstream());
-        list($ip, $port) = explode(":", $this->getListen());
-        $listen = sprintf("%s:%s", gethostbyname($ip), $port);
         $this->assertEquals($listen, $proxy->getListen());
         $this->assertTrue($proxy->isEnabled());
         $this->assertProxyAvailable($proxy);
@@ -53,6 +52,35 @@ class ToxiproxyTest extends AbstractTest
         }
 
         $this->assertTrue(false);
+    }
+
+    public function testPopulate()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        // producing a list of proposed proxy-bodies and the expected proxies
+        $proxyBodies = [
+            [
+                "name" => self::TEST_NAME,
+                "listen" => $this->getListen(),
+                "upstream" => self::TEST_UPSTREAM_REDIS,
+                "enabled" => true
+            ]
+        ];
+        $expectedProxy = new Proxy($toxiproxy, $proxyBodies[0]["name"]);
+        $expectedProxy->setEnabled($proxyBodies[0]["enabled"])
+            ->setListen($proxyBodies[0]["listen"])
+            ->setUpstream($proxyBodies[0]["upstream"]);
+        $expectedProxies = [$expectedProxy];
+
+        // populating
+        $proxies = $toxiproxy->populate($proxyBodies);
+
+        // comparing the results
+        $this->assertEquals($expectedProxies, $proxies);
+
+        // cleaning up
+        $this->removeProxy($toxiproxy, $proxies[0]);
     }
 
     public function testGet()

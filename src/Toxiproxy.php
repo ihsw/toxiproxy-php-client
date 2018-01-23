@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ClientException as HttpClientException;
 use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Exception\Exception;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
+use Ihsw\Toxiproxy\Exception\InvalidProxyException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 
@@ -64,7 +65,7 @@ class Toxiproxy
      * @param string $upstream
      * @param string|null $listen
      * @return Proxy
-     * @throws Exception|HttpClientException
+     * @throws ProxyExistsException|UnexpectedStatusCodeException
      */
     public function create($name, $upstream, $listen = null)
     {
@@ -94,9 +95,43 @@ class Toxiproxy
     }
 
     /**
+     * @param array $proxyBodies
+     * @return Proxy[]
+     * @throws InvalidProxyException|UnexpectedStatusCodeException
+     */
+    public function populate(array $proxyBodies)
+    {
+        $route = $this->populateRoute();
+        try {
+            $response = $this->httpClient->request($route["method"], $route["uri"], [
+                "body" => json_encode($proxyBodies)
+            ]);
+            $contents = json_decode($response->getBody(), true);
+            return array_map(function ($contents) {
+                return $this->contentsToProxy($contents);
+            }, $contents["proxies"]);
+        } catch (HttpClientException $e) {
+            switch ($e->getResponse()->getStatusCode()) {
+                case StatusCodes::BAD_REQUEST:
+                    throw new InvalidProxyException(
+                        $e->getResponse()->getBody(),
+                        $e->getCode(),
+                        $e
+                    );
+                default:
+                    throw new UnexpectedStatusCodeException(
+                        $e->getResponse()->getBody(),
+                        $e->getCode(),
+                        $e
+                    );
+            }
+        }
+    }
+
+    /**
      * @param string $name
      * @return Proxy|null
-     * @throws Exception|HttpClientException
+     * @throws UnexpectedStatusCodeException
      */
     public function get($name)
     {
@@ -160,6 +195,7 @@ class Toxiproxy
     /**
      * @param Proxy $proxy
      * @return Proxy
+     * @throws NotFoundException|UnexpectedStatusCodeException
      */
     public function update(Proxy $proxy)
     {

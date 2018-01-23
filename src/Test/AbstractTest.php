@@ -39,7 +39,7 @@ abstract class AbstractTest extends TestCase
      */
     protected function getListen($listen = 34343)
     {
-        return sprintf("%s:%s", $this->getToxiproxyHost(), $listen);
+        return sprintf("%s:%s", gethostbyname($this->getToxiproxyHost()), $listen);
     }
 
     /**
