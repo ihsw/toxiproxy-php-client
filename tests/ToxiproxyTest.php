@@ -104,7 +104,24 @@ class ToxiproxyTest extends AbstractTest
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
+
         $this->assertEquals($proxy->getName(), $toxiproxy->get($proxy->getName())->getName());
+
+        $this->removeProxy($toxiproxy, $proxy);
+    }
+
+    public function testGetWithToxics()
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+
+        $toxics = [$this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ])];
+        $receivedProxy = $toxiproxy->get($proxy->getName());
+        $this->assertEquals($toxics[0]->jsonSerialize(), $receivedProxy->getToxics()[0]->jsonSerialize());
+
         $this->removeProxy($toxiproxy, $proxy);
     }
 
