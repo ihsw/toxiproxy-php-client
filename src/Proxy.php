@@ -172,7 +172,7 @@ class Proxy implements \JsonSerializable
     /**
      * @return \GuzzleHttp\Client
      */
-    public function getHttpClient()
+    private function getHttpClient()
     {
         return $this->toxiproxy->getHttpClient();
     }
