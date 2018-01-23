@@ -103,8 +103,7 @@ class ProxyTest extends AbstractTest
             "jitter" => 500
         ]);
 
-        $toxic->setType(ToxicTypes::BANDWIDTH)
-            ->setAttributes(["rate" => 1000])
+        $toxic->setAttributes(["latency" => 2000, "jitter" => 1000])
             ->setToxicity(0.5);
         $updatedToxic = $proxy->update($toxic);
         $this->assertEquals($updatedToxic, $toxic);
