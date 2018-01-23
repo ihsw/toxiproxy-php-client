@@ -135,7 +135,7 @@ class Proxy implements \JsonSerializable
      * @param ResponseInterface $response
      * @return Toxic
      */
-    public function responseToToxic(ResponseInterface $response)
+    private function responseToToxic(ResponseInterface $response)
     {
         return $this->contentsToToxic(json_decode($response->getBody(), true));
     }
