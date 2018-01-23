@@ -7,6 +7,7 @@ use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
+use Ihsw\Toxiproxy\Exception\InvalidProxyException;
 
 class ToxiproxyTest extends AbstractTest
 {
@@ -81,6 +82,21 @@ class ToxiproxyTest extends AbstractTest
 
         // cleaning up
         $this->removeProxy($toxiproxy, $proxies[0]);
+    }
+
+    public function testPopulateBadData()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        try {
+            $toxiproxy->populate(["bullshit" => "yes"]);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(InvalidProxyException::class, $e);
+
+            return;
+        }
+
+        $this->assertTrue(false);
     }
 
     public function testGet()
