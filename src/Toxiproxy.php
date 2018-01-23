@@ -5,7 +5,6 @@ namespace Ihsw\Toxiproxy;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException as HttpClientException;
 use Psr\Http\Message\ResponseInterface;
-use Ihsw\Toxiproxy\Exception\Exception;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\InvalidProxyException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
@@ -219,6 +218,23 @@ class Toxiproxy
                         $e
                     );
             }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function reset()
+    {
+        $route = $this->resetRoute();
+        $response = $this->httpClient->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::NO_CONTENT:
+                return;
+            default:
+                throw new UnexpectedStatusCodeException(
+                    sprintf("Unexpected status code: %s", $response->getStatusCode())
+                );
         }
     }
 }

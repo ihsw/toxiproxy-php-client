@@ -5,6 +5,7 @@ namespace Ihsw\Toxiproxy\Test;
 use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\ToxicTypes;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\InvalidProxyException;
@@ -188,5 +189,30 @@ class ToxiproxyTest extends AbstractTest
         }
 
         $this->assertTrue(false);
+    }
+
+    public function testReset()
+    {
+        $toxiproxy = $this->createToxiproxy();
+
+        // creating a proxy and a toxic, and disabling the proxy
+        $proxy = $this->createProxy($toxiproxy);
+        $this->createToxic($proxy, ToxicTypes::LATENCY, [
+            "latency" => 1000,
+            "jitter" => 500
+        ]);
+        $proxy->setEnabled(false);
+        $toxiproxy->update($proxy);
+
+        // resetting all proxies
+        $toxiproxy->reset();
+
+        // checking that this proxy is now re-enabled
+        $proxy = $toxiproxy->get($proxy->getName());
+        $this->assertTrue($proxy->isEnabled());
+
+        // checking that this proxy has no toxics
+        $toxics = $proxy->getAll();
+        $this->assertEmpty($toxics);
     }
 }
