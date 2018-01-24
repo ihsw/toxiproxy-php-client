@@ -2,9 +2,9 @@
 
 namespace Ihsw\Toxiproxy;
 
-use GuzzleHttp\Exception\ClientException as HttpClientException;
-use Ihsw\Toxiproxy\Exception\NotFoundException;
+use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\ToxicExistsException;
 use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
 
@@ -170,7 +170,7 @@ class Proxy implements \JsonSerializable
     }
 
     /**
-     * @return \GuzzleHttp\Client
+     * @return Client
      */
     private function getHttpClient()
     {
@@ -183,11 +183,21 @@ class Proxy implements \JsonSerializable
     public function getAll()
     {
         $route = $this->getToxicsRoute($this);
-        $res = $this->getHttpClient()->request($route["method"], $route["uri"]);
-        $body = json_decode($res->getBody(), true);
-        return array_map(function ($contents) {
-            return $this->contentsToToxic($contents);
-        }, array_values($body));
+        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                $body = json_decode($response->getBody(), true);
+
+                return array_map(function ($contents) {
+                    return $this->contentsToToxic($contents);
+                }, array_values($body));
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
+        }
     }
 
     /**
@@ -197,112 +207,105 @@ class Proxy implements \JsonSerializable
      * @param array $attributes
      * @param string|null $name
      * @return Toxic
+     * @throws ToxicExistsException|UnexpectedStatusCodeException
      */
     public function create($type, $stream, $toxicity, $attributes, $name = null)
     {
-        try {
-            $route = $this->createToxicRoute($this);
-            return $this->responseToToxic(
-                $this->getHttpClient()->request($route["method"], $route["uri"], [
-                    "body" => json_encode([
-                        "name" => $name,
-                        "stream" => $stream,
-                        "type" => $type,
-                        "toxicity" => $toxicity,
-                        "attributes" => $attributes
-                    ])
-                ])
-            );
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::CONFLICT:
-                    throw new ToxicExistsException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->createToxicRoute($this);
+        $response = $this->getHttpClient()->request($route["method"], $route["uri"], [
+            "body" => json_encode([
+                "name" => $name,
+                "stream" => $stream,
+                "type" => $type,
+                "toxicity" => $toxicity,
+                "attributes" => $attributes
+            ])
+        ]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+            case StatusCodes::NO_CONTENT:
+                return $this->responseToToxic($response);
+            case StatusCodes::CONFLICT:
+                throw new ToxicExistsException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
     /**
      * @param string $name
-     * @return Toxic
+     * @return Toxic|null
+     * @throws UnexpectedStatusCodeException
      */
     public function get($name)
     {
-        try {
-            $route = $this->getToxicRoute($this, $name);
-            return $this->responseToToxic(
-                $this->getHttpClient()->request($route["method"], $route["uri"])
-            );
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    return null;
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->getToxicRoute($this, $name);
+        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                return $this->responseToToxic($response);
+            case StatusCodes::NOT_FOUND:
+                return null;
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
+    /**
+     * @param Toxic $toxic
+     * @return Toxic
+     * @throws NotFoundException|UnexpectedStatusCodeException
+     */
     public function update(Toxic $toxic)
     {
-        try {
-            $route = $this->updateToxicRoute($this, $toxic);
-            return $this->responseToToxic($this->getHttpClient()->request(
-                $route["method"],
-                $route["uri"],
-                ["body" => json_encode($toxic)]
-            ));
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    throw new NotFoundException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->updateToxicRoute($this, $toxic);
+        $response = $this->getHttpClient()->request(
+            $route["method"],
+            $route["uri"],
+            ["body" => json_encode($toxic)]
+        );
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                return $this->responseToToxic($response);
+            case StatusCodes::NOT_FOUND:
+                throw new NotFoundException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
+    /**
+     * @param Toxic $toxic
+     * @return void
+     * @throws NotFoundException|UnexpectedStatusCodeException
+     */
     public function delete(Toxic $toxic)
     {
-        try {
-            $route = $this->deleteToxicRoute($this, $toxic);
-            $this->getHttpClient()->request($route["method"], $route["uri"]);
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    throw new NotFoundException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->deleteToxicRoute($this, $toxic);
+        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::NO_CONTENT:
+                return;
+            case StatusCodes::NOT_FOUND:
+                throw new NotFoundException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 }

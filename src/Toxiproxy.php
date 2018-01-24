@@ -2,8 +2,7 @@
 
 namespace Ihsw\Toxiproxy;
 
-use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\ClientException as HttpClientException;
+use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\InvalidProxyException;
@@ -15,7 +14,7 @@ class Toxiproxy
     use UrlHelpers;
 
     /**
-     * @var HttpClient
+     * @var Client
      */
     private $httpClient;
 
@@ -25,15 +24,28 @@ class Toxiproxy
      */
     public function __construct($baseUrl)
     {
-        $this->httpClient = new HttpClient(["base_uri" => $baseUrl]);
+        $this->httpClient = new Client([
+            "base_uri" => $baseUrl,
+            "http_errors" => false
+        ]);
     }
 
     /**
-     * @return HttpClient
+     * @return Client
      */
     public function getHttpClient()
     {
         return $this->httpClient;
+    }
+
+    /**
+     * @param Client $client
+     * @return $this
+     */
+    public function setHttpClient(Client $client)
+    {
+        $this->httpClient = $client;
+        return $this;
     }
 
     /**
@@ -68,28 +80,21 @@ class Toxiproxy
      */
     public function create($name, $upstream, $listen = null)
     {
-        try {
-            $route = $this->createProxyRoute();
-            return $this->responseToProxy(
-                $this->httpClient->request($route["method"], $route["uri"], [
-                    "body" => json_encode(["name" => $name, "upstream" => $upstream, "listen" => $listen])
-                ])
-            );
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::CONFLICT:
-                    throw new ProxyExistsException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->createProxyRoute();
+        $response = $this->httpClient->request($route["method"], $route["uri"], [
+            "body" => json_encode(["name" => $name, "upstream" => $upstream, "listen" => $listen])
+        ]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::CREATED:
+                return $this->responseToProxy($response);
+            case StatusCodes::CONFLICT:
+                throw new ProxyExistsException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
@@ -101,29 +106,24 @@ class Toxiproxy
     public function populate(array $proxyBodies)
     {
         $route = $this->populateRoute();
-        try {
-            $response = $this->httpClient->request($route["method"], $route["uri"], [
-                "body" => json_encode($proxyBodies)
-            ]);
-            $contents = json_decode($response->getBody(), true);
-            return array_map(function ($contents) {
-                return $this->contentsToProxy($contents);
-            }, $contents["proxies"]);
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::BAD_REQUEST:
-                    throw new InvalidProxyException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $response = $this->httpClient->request($route["method"], $route["uri"], [
+            "body" => json_encode($proxyBodies)
+        ]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::CREATED:
+                $contents = json_decode($response->getBody(), true);
+
+                return array_map(function ($contents) {
+                    return $this->contentsToProxy($contents);
+                }, $contents["proxies"]);
+            case StatusCodes::BAD_REQUEST:
+                throw new InvalidProxyException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
@@ -134,34 +134,44 @@ class Toxiproxy
      */
     public function get($name)
     {
-        try {
-            $route = $this->getProxyRoute($name);
-            return $this->responseToProxy($this->httpClient->request($route["method"], $route["uri"]));
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    return null;
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->getProxyRoute($name);
+        $response = $this->httpClient->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                return $this->responseToProxy($response);
+            case StatusCodes::NOT_FOUND:
+                return null;
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
     /**
      * @return Proxy[]
+     * @throws UnexpectedStatusCodeException
      */
     public function getAll()
     {
         $route = $this->getProxiesRoute();
-        $res = $this->httpClient->request($route["method"], $route["uri"]);
-        $body = json_decode($res->getBody(), true);
-        return array_map(function ($contents) {
-            return $this->contentsToProxy($contents);
-        }, array_values($body));
+        $response = $this->httpClient->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                $body = json_decode($response->getBody(), true);
+
+                return array_map(function ($contents) {
+                    return $this->contentsToProxy($contents);
+                }, array_values($body));
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
+        }
     }
 
     /**
@@ -170,24 +180,19 @@ class Toxiproxy
      */
     public function delete(Proxy $proxy)
     {
-        try {
-            $route = $this->deleteProxyRoute($proxy);
-            $this->httpClient->request($route["method"], $route["uri"]);
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    throw new NotFoundException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->deleteProxyRoute($proxy);
+        $response = $this->httpClient->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::NO_CONTENT:
+                return;
+            case StatusCodes::NOT_FOUND:
+                throw new NotFoundException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
@@ -198,31 +203,27 @@ class Toxiproxy
      */
     public function update(Proxy $proxy)
     {
-        try {
-            $route = $this->updateProxyRoute($proxy);
-            return $this->responseToProxy($this->httpClient->request($route["method"], $route["uri"], [
-                "body" => json_encode($proxy)
-            ]));
-        } catch (HttpClientException $e) {
-            switch ($e->getResponse()->getStatusCode()) {
-                case StatusCodes::NOT_FOUND:
-                    throw new NotFoundException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-                default:
-                    throw new UnexpectedStatusCodeException(
-                        $e->getResponse()->getBody(),
-                        $e->getCode(),
-                        $e
-                    );
-            }
+        $route = $this->updateProxyRoute($proxy);
+        $response = $this->httpClient->request($route["method"], $route["uri"], [
+            "body" => json_encode($proxy)
+        ]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                return $this->responseToProxy($response);
+            case StatusCodes::NOT_FOUND:
+                throw new NotFoundException($response->getBody());
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
         }
     }
 
     /**
      * @return void
+     * @throws UnexpectedStatusCodeException
      */
     public function reset()
     {
@@ -240,11 +241,21 @@ class Toxiproxy
 
     /**
      * @return string
+     * @throws UnexpectedStatusCodeException
      */
     public function version()
     {
         $route = $this->versionRoute();
-        return $this->httpClient->request($route["method"], $route["uri"])
-            ->getBody();
+        $response = $this->httpClient->request($route["method"], $route["uri"]);
+        switch ($response->getStatusCode()) {
+            case StatusCodes::OK:
+                return $response->getBody();
+            default:
+                throw new UnexpectedStatusCodeException(sprintf(
+                    "%s: %s",
+                    $response->getStatusCode(),
+                    $response->getBody()
+                ));
+        }
     }
 }

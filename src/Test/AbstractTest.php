@@ -7,7 +7,6 @@ use Ihsw\Toxiproxy\Toxiproxy;
 use Ihsw\Toxiproxy\Proxy;
 use Ihsw\Toxiproxy\Toxic;
 use Ihsw\Toxiproxy\StreamDirections;
-use Ihsw\Toxiproxy\ToxicTypes;
 
 abstract class AbstractTest extends TestCase
 {
@@ -16,13 +15,20 @@ abstract class AbstractTest extends TestCase
     const TEST_UPSTREAM_PSQL = "127.0.0.1:5432";
 
     use AssertionHelpers;
+    use HttpMockHelpers;
 
     /**
      * @return Toxiproxy
      */
-    protected function createToxiproxy()
+    protected function createToxiproxy(array $mockResponses = null)
     {
-        return new Toxiproxy(sprintf("http://%s:8474", $this->getToxiproxyHost()));
+        if ($mockResponses === null) {
+            return new Toxiproxy(sprintf("http://%s:8474", $this->getToxiproxyHost()));
+        }
+
+        $toxiproxy = new Toxiproxy("");
+        $toxiproxy->setHttpClient(self::mockHttpClientFactory($mockResponses));
+        return $toxiproxy;
     }
 
     /**
