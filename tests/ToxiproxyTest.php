@@ -61,7 +61,7 @@ class ToxiproxyTest extends AbstractTest
     public function testCreateUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::NOT_FOUND, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -122,7 +122,7 @@ class ToxiproxyTest extends AbstractTest
     public function testPopulateUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::NOT_FOUND, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
         try {
             $toxiproxy->populate([]);
@@ -148,7 +148,7 @@ class ToxiproxyTest extends AbstractTest
     public function testGetUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -196,7 +196,7 @@ class ToxiproxyTest extends AbstractTest
     public function testGetAllUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -237,7 +237,7 @@ class ToxiproxyTest extends AbstractTest
     public function testDeleteUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -297,7 +297,7 @@ class ToxiproxyTest extends AbstractTest
     public function testUpdateUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -341,7 +341,7 @@ class ToxiproxyTest extends AbstractTest
     public function testResetUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {
@@ -365,7 +365,7 @@ class ToxiproxyTest extends AbstractTest
     public function testVersionUnexpectedStatus()
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::CREATED, "")
+            self::httpResponseFactory(StatusCodes::INVALID, "")
         ]);
 
         try {

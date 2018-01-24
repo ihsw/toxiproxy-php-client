@@ -4,6 +4,7 @@ namespace Ihsw\Toxiproxy;
 
 class StatusCodes
 {
+    const INVALID = -1;
     const OK = 200;
     const CREATED = 201;
     const NO_CONTENT = 204;
