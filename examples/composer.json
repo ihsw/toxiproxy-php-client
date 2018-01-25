@@ -1,0 +1,14 @@
+{
+    "name": "ihsw/toxiproxy-php-client-examples",
+    "type": "project",
+    "require": {
+        "ihsw/toxiproxy-php-client": "^v2.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrian Parker",
+            "email": "iamhiddensomewhere@gmail.com"
+        }
+    ]
+}
