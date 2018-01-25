@@ -1,8 +1,8 @@
 Toxiproxy PHP Client
 ====================
 
-[![Build status](https://travis-ci.org/ihsw/toxiproxy-php-client.svg?branch=dev)](https://travis-ci.org/ihsw/toxiproxy-php-client)
-[![Coverage Status](https://coveralls.io/repos/github/ihsw/toxiproxy-php-client/badge.svg?branch=dev)](https://coveralls.io/github/ihsw/toxiproxy-php-client?branch=dev)
+[![Build status](https://travis-ci.org/ihsw/toxiproxy-php-client.svg?branch=master)](https://travis-ci.org/ihsw/toxiproxy-php-client)
+[![Coverage Status](https://coveralls.io/repos/github/ihsw/toxiproxy-php-client/badge.svg?branch=master)](https://coveralls.io/github/ihsw/toxiproxy-php-client?branch=master)
 
 [Toxiproxy](https://github.com/shopify/toxiproxy) makes it easy and trivial to test network conditions, for example low-bandwidth and high-latency situations. `toxiproxy-php-client` includes everything needed to get started with configuring Toxiproxy upstream connection and listen endpoints.
 
