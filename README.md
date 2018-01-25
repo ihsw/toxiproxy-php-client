@@ -13,7 +13,7 @@ Installing via Composer
 
 The recommended way to install `toxiproxy-php-client` is through [Composer](http://getcomposer.org/).
 
-Once that is installed and you have added `ihsw/toxiproxy-php-bundle` to your `composer.json` configuration, you can require the autoloader and start using the library.
+Once that is installed and you have added `ihsw/toxiproxy-php-client` to your `composer.json` configuration, you can require the autoloader and start using the library.
 
 Here is an example for creating a proxy that limits a Redis connection to 1000KB/s.
 
