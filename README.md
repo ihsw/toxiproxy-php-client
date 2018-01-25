@@ -6,6 +6,8 @@ Toxiproxy PHP Client
 
 [Toxiproxy](https://github.com/shopify/toxiproxy) makes it easy and trivial to test network conditions, for example low-bandwidth and high-latency situations. `toxiproxy-php-client` includes everything needed to get started with configuring Toxiproxy upstream connection and listen endpoints.
 
+*Note: `toxiproxy-php-client` is currently compatible with `toxiproxy-2.0+`.*
+
 Installing via Composer
 -----------------------
 
@@ -20,18 +22,22 @@ Here is an example for creating a proxy that limits a Redis connection to 1000KB
 
 require("./vendor/autoload.php");
 
-use GuzzleHttp\Client as HttpClient;
 use Ihsw\Toxiproxy\Toxiproxy;
+use Ihsw\Toxiproxy\ToxicTypes;
 
-// hooking up to toxiproxy and starting a bandwidth proxy
-$toxiproxy = new Toxiproxy(new HttpClient(["base_url" => "http://127.0.0.1:8474"]));
+$toxiproxy = new Toxiproxy("http://toxiproxy:8474");
 $proxy = $toxiproxy->create("ihsw_example_redis_master", "127.0.0.1:6379");
-$proxy->updateDownstream("bandwidth", ["enabled" => true, "rate" => 1000]);
+$toxic = $proxy->create(ToxicTypes::BANDWIDTH, "upstream", 1.0, [
+    "rate" => 1000
+]);
 printf(
-	"Listening on IP %s and port %s on behalf of 6379, limited to 1000KB/s\n",
-	$proxy->getListenIp(),
-	$proxy->getListenPort()
+    "Listening on IP %s and port %s on behalf of 6379, with a connection that's limited to 1000KB/s\n",
+    $proxy->getListenIp(),
+    $proxy->getListenPort()
 );
+
+$toxiproxy->delete($proxy);
+
 ```
 
 Documentation
