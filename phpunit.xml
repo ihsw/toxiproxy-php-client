@@ -1,35 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         bootstrap="vendor/autoload.php"
+<!-- https://phpunit.readthedocs.io/en/12.0/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="true"
-         syntaxCheck="false">
+         cacheDirectory="/tmp"
+         executionOrder="depends,defects"
+         failOnEmptyTestSuite="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+>
     <testsuites>
         <testsuite name="Toxiproxy Test Suite">
-            <directory suffix=".php">./tests/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/</directory>
-        </whitelist>
-    </filter>
-    <logging>
-        <log
-            type="coverage-html"
-            target="_reports/coverage"
-            charset="UTF-8"
-            yui="true"
-            highlight="true"
-            lowUpperBound="35"
-            highLowerBound="70"
-        />
-        <log type="coverage-clover" target="_reports/clover.xml" />
-        <log type="coverage-php" target="_reports/clover.cov" />
-    </logging>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
 </phpunit>

@@ -8,7 +8,7 @@ use Ihsw\Toxiproxy\StreamDirections;
 
 $toxiproxy = new Toxiproxy("http://toxiproxy:8474");
 $proxy = $toxiproxy->create("ihsw_example_redis_master", "127.0.0.1:6379");
-$toxic = $proxy->create(ToxicTypes::TIMEOUT, StreamDirections::UPSTREAM, 1.0, [
+$toxic = $proxy->create(ToxicTypes::TIMEOUT->value, StreamDirections::UPSTREAM->value, 1.0, [
     "timeout" => 5*1000
 ]);
 printf(

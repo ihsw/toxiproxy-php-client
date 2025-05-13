@@ -1,41 +1,40 @@
 {
-	"name": "ihsw/toxiproxy-php-client",
-	"description": "PHP client for shopify/toxiproxy",
-	"license": "MIT",
-	"keywords": ["toxiproxy", "php", "client"],
-	"authors": [
-		{
-			"name": "Adrian Parker",
-			"email": "ihsw.aparker@gmail.com"
-		}
-	],
-	"require": {
-		"guzzlehttp/guzzle": "^6.0"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^6.5.5",
-		"squizlabs/php_codesniffer": "^3.2.2",
-		"react/socket": "^v0.8.2",
-		"react/socket-client": "^v0.7.0",
-		"php-coveralls/php-coveralls": "^2.0",
-		"phpdocumentor/phpdocumentor": "^v2.9.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Ihsw\\Toxiproxy\\": "src"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Ihsw\\ToxyproxyTests\\Integration\\": "tests/integration",
-			"Ihsw\\ToxyproxyTests\\Unit\\": "tests/unit"
-		}
-	},
-	"scripts": {
-		"test": "./vendor/bin/phpunit tests",
-		"lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./",
-		"fix-lint": "./vendor/bin/phpcbf --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./",
-		"coveralls": "./vendor/bin/php-coveralls --coverage_clover=./_reports/clover.xml --json_path=./_reports/coveralls-upload.json",
-		"generate-docs": "./vendor/bin/phpdoc -d ./src -t ./_docs"
-	}
+  "name": "ihsw/toxiproxy-php-client",
+  "description": "PHP client for shopify/toxiproxy",
+  "license": "MIT",
+  "keywords": [
+    "toxiproxy",
+    "php",
+    "client"
+  ],
+  "authors": [
+    {
+      "name": "Adrian Parker",
+      "email": "ihsw.aparker@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^7.9"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.1",
+    "squizlabs/php_codesniffer": "^3.12"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ihsw\\Toxiproxy\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Ihsw\\Toxiproxy\\Test\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit tests",
+    "lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./",
+    "fix-lint": "./vendor/bin/phpcbf --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./"
+  }
 }

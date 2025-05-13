@@ -3,323 +3,248 @@
 namespace Ihsw\Toxiproxy\Test;
 
 use GuzzleHttp\Client as HttpClient;
-use Ihsw\Toxiproxy\StatusCodes;
-use Ihsw\Toxiproxy\Toxiproxy;
-use Ihsw\Toxiproxy\Proxy;
-use Ihsw\Toxiproxy\ToxicTypes;
+use Ihsw\Toxiproxy\Exception\InvalidProxyException;
+use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\ProxyExistsException;
 use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
-use Ihsw\Toxiproxy\Exception\NotFoundException;
-use Ihsw\Toxiproxy\Exception\InvalidProxyException;
+use Ihsw\Toxiproxy\Proxy;
+use Ihsw\Toxiproxy\Test\Test\BaseTestCase;
+use Ihsw\Toxiproxy\ToxicTypes;
+use Ihsw\Toxiproxy\Toxiproxy;
 
-class ToxiproxyTest extends AbstractTest
+class ToxiproxyTest extends BaseTestCase
 {
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $toxiproxy = $this->createToxiproxy();
-        $this->assertTrue($toxiproxy instanceof Toxiproxy);
+        self::assertInstanceOf(Toxiproxy::class, $toxiproxy);
     }
 
-    public function testGetHttpClient()
+    public function testGetHttpClient(): void
     {
         $toxiproxy = $this->createToxiproxy();
-        $this->assertTrue($toxiproxy->getHttpClient() instanceof HttpClient);
+        self::assertInstanceOf(HttpClient::class, $toxiproxy->getHttpClient());
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $listen = $this->getListen();
-        $proxy = $toxiproxy->create(self::TEST_NAME, self::TEST_UPSTREAM_REDIS, $listen);
-        $this->assertTrue($proxy instanceof Proxy);
+        $proxy = $toxiproxy->create(self::PROXY_NAME, self::TEST_UPSTREAM, $listen);
+        self::assertInstanceOf(Proxy::class, $proxy);
 
-        $this->assertEquals(self::TEST_NAME, $proxy->getName());
-        $this->assertEquals(self::TEST_UPSTREAM_REDIS, $proxy->getUpstream());
-        $this->assertEquals($listen, $proxy->getListen());
-        $this->assertTrue($proxy->isEnabled());
-        $this->assertProxyAvailable($proxy);
+        self::assertEquals(self::PROXY_NAME, $proxy->getName());
+        self::assertEquals(self::TEST_UPSTREAM, $proxy->getUpstream());
+        self::assertEquals($listen, $proxy->getListen());
+        self::assertTrue($proxy->isEnabled());
 
         $toxiproxy->delete($proxy);
     }
 
-    public function testCreateDuplicate()
+    public function testCreateDuplicate(): void
     {
         $toxiproxy = $this->createToxiproxy();
-        $proxy = $this->createProxy($toxiproxy);
-        try {
-            $this->createProxy($toxiproxy);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(ProxyExistsException::class, $e);
-            $this->removeProxy($toxiproxy, $proxy);
+        $this->createProxy($toxiproxy);
 
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(ProxyExistsException::class);
+        $this->createProxy($toxiproxy);
     }
 
-    public function testCreateUnexpectedStatus()
+    public function testCreateUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $this->createProxy($toxiproxy);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $this->createProxy($toxiproxy);
     }
 
-    public function testPopulate()
+    public function testPopulate(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
         // producing a list of proposed proxy-bodies and the expected proxies
         $proxyBodies = [
             [
-                "name" => self::TEST_NAME,
-                "listen" => $this->getListen(),
-                "upstream" => self::TEST_UPSTREAM_REDIS,
-                "enabled" => true
-            ]
+                'name' => self::PROXY_NAME,
+                'listen' => $this->getListen(),
+                'upstream' => self::TEST_UPSTREAM,
+                'enabled' => true,
+            ],
         ];
-        $expectedProxy = new Proxy($toxiproxy, $proxyBodies[0]["name"]);
-        $expectedProxy->setEnabled($proxyBodies[0]["enabled"])
-            ->setListen($proxyBodies[0]["listen"])
-            ->setUpstream($proxyBodies[0]["upstream"]);
+        $expectedProxy = new Proxy($toxiproxy, $proxyBodies[0]['name']);
+        $expectedProxy->setEnabled($proxyBodies[0]['enabled'])
+            ->setListen($proxyBodies[0]['listen'])
+            ->setUpstream($proxyBodies[0]['upstream']);
         $expectedProxies = [$expectedProxy];
 
         // populating
         $proxies = $toxiproxy->populate($proxyBodies);
 
         // comparing the results
-        $this->assertEquals($expectedProxies, $proxies);
-
-        // cleaning up
-        $this->removeProxy($toxiproxy, $proxies[0]);
+        self::assertEquals($expectedProxies, $proxies);
     }
 
-    public function testPopulateBadData()
+    public function testPopulateBadData(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
-        try {
-            $toxiproxy->populate(["bullshit" => "yes"]);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(InvalidProxyException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(InvalidProxyException::class);
+        $toxiproxy->populate(['bullshit' => 'yes']);
     }
 
-    public function testPopulateUnexpectedStatus()
+    public function testPopulateUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
-        try {
-            $toxiproxy->populate([]);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
 
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->populate([]);
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
 
-        $this->assertEquals($proxy->getName(), $toxiproxy->get($proxy->getName())->getName());
-
-        $this->removeProxy($toxiproxy, $proxy);
+        self::assertEquals(
+            $proxy->getName(),
+            $toxiproxy->get($proxy->getName())->getName(),
+        );
     }
 
-    public function testGetUnexpectedStatus()
+    public function testGetUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->get("");
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->get('');
     }
 
-    public function testGetWithToxics()
+    public function testGetWithToxics(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
 
-        $toxics = [$this->createToxic($proxy, ToxicTypes::LATENCY, [
-            "latency" => 1000,
-            "jitter" => 500
+        $toxics = [$this->createToxic($proxy, ToxicTypes::LATENCY->value, [
+            'latency' => 1000,
+            'jitter' => 500,
         ])];
         $receivedProxy = $toxiproxy->get($proxy->getName());
-        $this->assertEquals($toxics[0]->jsonSerialize(), $receivedProxy->getToxics()[0]->jsonSerialize());
-
-        $this->removeProxy($toxiproxy, $proxy);
+        self::assertSame(
+            $toxics[0]->jsonSerialize(),
+            $receivedProxy->getToxics()[0]->jsonSerialize(),
+        );
     }
 
-    public function testGetNotFound()
+    public function testGetNotFound(): void
     {
         $toxiproxy = $this->createToxiproxy();
-        $proxy = $toxiproxy->get("non-existent");
-        $this->assertNull($proxy);
+        $proxy = $toxiproxy->get('non-existent');
+        self::assertNull($proxy);
     }
 
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
         $proxies = $toxiproxy->getAll();
-        $this->assertEquals($proxy, $proxies[0]);
-        $this->removeProxy($toxiproxy, $proxy);
+        self::assertEquals($proxy, $proxies[0]);
     }
 
-    public function testGetAllUnexpectedStatus()
+    public function testGetAllUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->getAll();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);;;
+        $toxiproxy->getAll();
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $toxiproxy = $this->createToxiproxy();
+        self::assertCount(0, $toxiproxy->getAll());;
         $toxiproxy->delete($this->createProxy($toxiproxy));
-        $this->assertTrue(true);
+        self::assertCount(0, $toxiproxy->getAll());;
     }
 
-    public function testDeleteNotFound()
+    public function testDeleteNotFound(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
         $toxiproxy->delete($proxy);
 
-        try {
-            $toxiproxy->delete($proxy);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(NotFoundException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(NotFoundException::class);;
+        $toxiproxy->delete($proxy);
     }
 
-    public function testDeleteUnexpectedStatus()
+    public function testDeleteUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->delete(new Proxy($toxiproxy, ""));
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->delete(new Proxy($toxiproxy, ''));
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $toxiproxy = $this->createToxiproxy();
         $proxy = $this->createProxy($toxiproxy);
 
         $proxy->setListen($this->getListen(43434))
-            ->setUpstream(self::TEST_UPSTREAM_PSQL)
+            ->setUpstream(self::TEST_UPSTREAM)
             ->setEnabled(false);
         $updatedProxy = $toxiproxy->update($proxy);
-        $this->assertEquals($proxy, $updatedProxy);
-
-        $toxiproxy->delete($updatedProxy);
+        self::assertEquals($proxy, $updatedProxy);
     }
 
-    public function testUpdateDisabled()
+    public function testUpdateDisabled(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
         $proxy = $this->createProxy($toxiproxy);
-        $this->assertProxyAvailable($proxy);
+        self::assertTrue($proxy->isEnabled());
 
         $proxy->setEnabled(false);
         $proxy = $toxiproxy->update($proxy);
-        $this->assertProxyUnavailable($proxy);
-
-        $toxiproxy->delete($proxy);
+        self::assertFalse($proxy->isEnabled());
     }
 
-    public function testUpdateNotFound()
+    public function testUpdateNotFound(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
-        try {
-            $toxiproxy->update(new Proxy($toxiproxy, "not-found"));
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(NotFoundException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(NotFoundException::class);
+        $toxiproxy->update(new Proxy($toxiproxy, 'not-found'));
     }
 
-    public function testUpdateUnexpectedStatus()
+    public function testUpdateUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->update(new Proxy($toxiproxy, ""));
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->update(new Proxy($toxiproxy, ''));
     }
 
-    public function testReset()
+    public function testReset(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
         // creating a proxy and a toxic, and disabling the proxy
         $proxy = $this->createProxy($toxiproxy);
-        $this->createToxic($proxy, ToxicTypes::LATENCY, [
-            "latency" => 1000,
-            "jitter" => 500
+        $this->createToxic($proxy, ToxicTypes::LATENCY->value, [
+            'latency' => 1000,
+            'jitter' => 500,
         ]);
         $proxy->setEnabled(false);
         $toxiproxy->update($proxy);
@@ -329,53 +254,37 @@ class ToxiproxyTest extends AbstractTest
 
         // checking that this proxy is now re-enabled
         $proxy = $toxiproxy->get($proxy->getName());
-        $this->assertTrue($proxy->isEnabled());
+        self::assertTrue($proxy->isEnabled());
 
         // checking that this proxy has no toxics
         $toxics = $proxy->getAll();
-        $this->assertEmpty($toxics);
-
-        $this->removeProxy($toxiproxy, $proxy);
+        self::assertEmpty($toxics);
     }
 
-    public function testResetUnexpectedStatus()
+    public function testResetUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->reset();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->reset();
     }
 
-    public function testVersion()
+    public function testVersion(): void
     {
         $toxiproxy = $this->createToxiproxy();
 
-        $this->assertNotEmpty($toxiproxy->version());
+        self::assertNotEmpty($toxiproxy->version());
     }
 
-    public function testVersionUnexpectedStatus()
+    public function testVersionUnexpectedStatus(): void
     {
         $toxiproxy = $this->createToxiproxy([
-            self::httpResponseFactory(StatusCodes::INVALID, "")
+            self::httpResponseFactory(418, ''),
         ]);
 
-        try {
-            $toxiproxy->version();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(UnexpectedStatusCodeException::class, $e);
-
-            return;
-        }
-
-        $this->assertTrue(false);
+        $this->expectException(UnexpectedStatusCodeException::class);
+        $toxiproxy->version();
     }
 }

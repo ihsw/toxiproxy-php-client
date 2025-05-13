@@ -2,124 +2,72 @@
 
 namespace Ihsw\Toxiproxy;
 
-class Toxic implements \JsonSerializable
+use JsonSerializable;
+
+class Toxic implements JsonSerializable
 {
-    /**
-     * @var Proxy
-     */
-    private $proxy;
+    private Proxy $proxy;
+    private string $name;
+    private string $type;
+    private string $stream;
+    private float $toxicity;
+    private array $attributes;
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var string
-     */
-    private $stream;
-
-    /**
-     * @var float
-     */
-    private $toxicity;
-
-    /**
-     * @var array
-     */
-    private $attributes;
-
-    /**
-     * Toxic constructor.
-     * @param Proxy $proxy
-     * @param string $name
-     * @param string $type
-     * @param string $stream
-     */
-    public function __construct(Proxy $proxy, $name, $type, $stream)
+    public function __construct(Proxy $proxy, string $name, string $type, string $stream)
     {
         $this->proxy = $proxy;
         $this->name = $name;
-        $this->type= $type;
-        $this->stream= $stream;
+        $this->type = $type;
+        $this->stream = $stream;
+        $this->toxicity = 1.0;
+        $this->attributes = [];
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return string
-     */
-    public function getStream()
+    public function getStream(): string
     {
         return $this->stream;
     }
 
-    /**
-     * @return float
-     */
-    public function getToxicity()
+    public function getToxicity(): float
     {
         return $this->toxicity;
     }
 
-    /**
-     * @param float $toxicity
-     * @return $this
-     */
-    public function setToxicity($toxicity)
+    public function setToxicity(float $toxicity): self
     {
         $this->toxicity = $toxicity;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    /**
-     * @param array $attributes
-     * @return $this
-     */
-    public function setAttributes($attributes)
+    public function setAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
-            "name" => $this->name,
-            "stream" => $this->stream,
-            "type" => $this->type,
-            "toxicity" => $this->toxicity,
-            "attributes" => $this->attributes
+            'name' => $this->name,
+            'stream' => $this->stream,
+            'type' => $this->type,
+            'toxicity' => $this->toxicity,
+            'attributes' => $this->attributes,
         ];
     }
 }

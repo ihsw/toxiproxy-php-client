@@ -1,28 +1,26 @@
 <?php
 
-namespace Ihsw\Toxiproxy\Test;
+namespace Ihsw\Toxiproxy\Test\Test;
 
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Handler\MockHandler as HttpMockHandler;
 use GuzzleHttp\HandlerStack as HttpHandlerStack;
-use GuzzleHttp\Psr7 as HttpPsr7;
 use GuzzleHttp\Psr7\Response as HttpResponse;
 
 trait HttpMockHelpers
 {
-    protected static function mockHttpClientFactory(array $responses)
+    protected static function mockHttpClientFactory(array $responses): HttpClient
     {
         $mock = new HttpMockHandler($responses);
         $handler = HttpHandlerStack::create($mock);
-        $client = new HttpClient([
+        return new HttpClient([
             "handler" => $handler,
             "http_errors" => false
         ]);
-        return $client;
     }
 
-    protected static function httpResponseFactory($statusCode, $body, array $headers = [])
+    protected static function httpResponseFactory(int $statusCode, string $body, array $headers = []): HttpResponse
     {
-        return new HttpResponse($statusCode, $headers, HttpPsr7\stream_for($body));
+        return new HttpResponse($statusCode, $headers, $body);
     }
 }

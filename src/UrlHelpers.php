@@ -4,127 +4,70 @@ namespace Ihsw\Toxiproxy;
 
 trait UrlHelpers
 {
-    /**
-     * @return array
-     */
-    public function getProxiesRoute()
+    public function getProxiesRoute(): array
     {
-        return ["method" => "GET", "uri" => "/proxies"];
+        return ['method' => 'GET', 'uri' => '/proxies'];
     }
 
-    /**
-     * @return array
-     */
-    public function createProxyRoute()
+    public function createProxyRoute(): array
     {
-        return ["method" => "POST", "uri" => "/proxies"];
+        return ['method' => 'POST', 'uri' => '/proxies'];
     }
 
-    /**
-     * @return array
-     */
-    public function populateRoute()
+    public function populateRoute(): array
     {
-        return ["method" => "POST", "uri" => "/populate"];
+        return ['method' => 'POST', 'uri' => '/populate'];
     }
 
-    /**
-     * @param string
-     * @return array
-     */
-    public function getProxyRoute($name)
+    public function getProxyRoute(string $name): array
     {
-        return ["method" => "GET", "uri" => sprintf("/proxies/%s", $name)];
+        return ['method' => 'GET', 'uri' => sprintf('/proxies/%s', $name)];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @return array
-     */
-    public function updateProxyRoute(Proxy $proxy)
+    public function updateProxyRoute(Proxy $proxy): array
     {
-        return ["method" => "POST", "uri" => sprintf("/proxies/%s", $proxy->getName())];
+        return ['method' => 'POST', 'uri' => sprintf('/proxies/%s', $proxy->getName())];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @return array
-     */
-    public function deleteProxyRoute(Proxy $proxy)
+    
+    public function deleteProxyRoute(Proxy $proxy): array
     {
-        return ["method" => "DELETE", "uri" => sprintf("/proxies/%s", $proxy->getName())];
+        return ['method' => 'DELETE', 'uri' => sprintf('/proxies/%s', $proxy->getName())];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @return array
-     */
-    public function getToxicsRoute(Proxy $proxy)
+
+    public function getToxicsRoute(Proxy $proxy): array
     {
-        return ["method" => "GET", "uri" => sprintf("/proxies/%s/toxics", $proxy->getName())];
+        return ['method' => 'GET', 'uri' => sprintf('/proxies/%s/toxics', $proxy->getName())];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @return array
-     */
-    public function createToxicRoute(Proxy $proxy)
+    public function createToxicRoute(Proxy $proxy): array
     {
-        return ["method" => "POST", "uri" => sprintf("/proxies/%s/toxics", $proxy->getName())];
+        return ['method' => 'POST', 'uri' => sprintf('/proxies/%s/toxics', $proxy->getName())];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @param string $name
-     * @return array
-     */
-    public function getToxicRoute(Proxy $proxy, $name)
+    public function getToxicRoute(Proxy $proxy, string $name): array
     {
-        return [
-            "method" => "GET",
-            "uri" => sprintf("/proxies/%s/toxics/%s", $proxy->getName(), $name)
-        ];
+        return ['method' => 'GET', 'uri' => sprintf('/proxies/%s/toxics/%s', $proxy->getName(), $name)];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @param Toxic $toxic
-     * @return array
-     */
-    public function updateToxicRoute(Proxy $proxy, Toxic $toxic)
+    public function updateToxicRoute(Proxy $proxy, Toxic $toxic): array
     {
-        return [
-            "method" => "POST",
-            "uri" => sprintf("/proxies/%s/toxics/%s", $proxy->getName(), $toxic->getName())
-        ];
+        return ['method' => 'POST', 'uri' => sprintf('/proxies/%s/toxics/%s', $proxy->getName(), $toxic->getName())];
     }
 
-    /**
-     * @param Proxy $proxy
-     * @param Toxic $toxic
-     * @return array
-     */
-    public function deleteToxicRoute(Proxy $proxy, Toxic $toxic)
+    public function deleteToxicRoute(Proxy $proxy, Toxic $toxic): array
     {
-        return [
-            "method" => "DELETE",
-            "uri" => sprintf("/proxies/%s/toxics/%s", $proxy->getName(), $toxic->getName())
-        ];
+        return ['method' => 'DELETE', 'uri' => sprintf('/proxies/%s/toxics/%s', $proxy->getName(), $toxic->getName())];
+    }
+    
+    public function resetRoute(): array
+    {
+        return ['method' => 'POST', 'uri' => '/reset'];
     }
 
-    /**
-     * @return array
-     */
-    public function resetRoute()
+    public function versionRoute(): array
     {
-        return ["method" => "POST", "uri" => "/reset"];
-    }
-
-    /**
-     * @return array
-     */
-    public function versionRoute()
-    {
-        return ["method" => "GET", "uri" => "/version"];
+        return ['method' => 'GET', 'uri' => '/version'];
     }
 }
