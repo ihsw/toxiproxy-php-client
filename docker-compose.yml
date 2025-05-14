@@ -1,0 +1,18 @@
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy
+    ports:
+      - "8474:8474"
+
+  ci-tests:
+    build:
+      context: .
+      target: dev
+    image: toxiproxy-php-client
+    command: ["composer", "ci"]
+    environment:
+      TOXIPROXY_HOST: toxiproxy
+      TOXIPROXY_PORT: 8474
+    depends_on:
+      toxiproxy:
+        condition: service_started

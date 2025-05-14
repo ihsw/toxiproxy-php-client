@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ihsw\Toxiproxy;
 
-class StreamDirections
+enum StreamDirections: string
 {
-    const UPSTREAM = "upstream";
-    const DOWNSTREAM = "downstream";
+    case UPSTREAM = 'upstream';
+    case DOWNSTREAM = 'downstream';
 }

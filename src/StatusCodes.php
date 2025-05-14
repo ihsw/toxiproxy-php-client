@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ihsw\Toxiproxy;
 
-class StatusCodes
+enum StatusCodes: int
 {
-    const INVALID = -1;
-    const OK = 200;
-    const CREATED = 201;
-    const NO_CONTENT = 204;
-    const BAD_REQUEST = 400;
-    const NOT_FOUND = 404;
-    const CONFLICT = 409;
+    case CONFLICT = 409;
+    case CREATED = 201;
+    case BAD_REQUEST = 400;
+    case NOT_FOUND = 404;
+    case NO_CONTENT = 204;
+    case OK = 200;
 }

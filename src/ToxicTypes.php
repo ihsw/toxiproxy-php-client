@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ihsw\Toxiproxy;
 
-class ToxicTypes
+enum ToxicTypes: string
 {
-    const LATENCY = "latency";
-    const BANDWIDTH = "bandwidth";
-    const SLOW_CLOSE = "slow_close";
-    const TIMEOUT = "timeout";
-    const SLICER = "slicer";
-    const LIMIT_DATA = "limit_data";
+    case SLOW_CLOSE = 'slow_close';
+    case SLICER = 'slicer';
+    case LATENCY = 'latency';
+    case LIMIT_DATA = 'limit_data';
+    case TIMEOUT = 'timeout';
+    case BANDWIDTH = 'bandwidth';
 }

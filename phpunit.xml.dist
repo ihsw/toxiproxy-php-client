@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://phpunit.readthedocs.io/en/12.0/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
+         colors="true"
+         cacheDirectory="/tmp"
+         executionOrder="depends,defects"
+         failOnEmptyTestSuite="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+>
+    <testsuites>
+        <testsuite name="Toxiproxy Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+</phpunit>

@@ -1,121 +1,87 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ihsw\Toxiproxy;
 
 use GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
 use Ihsw\Toxiproxy\Exception\NotFoundException;
 use Ihsw\Toxiproxy\Exception\ToxicExistsException;
 use Ihsw\Toxiproxy\Exception\UnexpectedStatusCodeException;
+use JsonSerializable;
+use Psr\Http\Message\ResponseInterface;
 
-class Proxy implements \JsonSerializable
+class Proxy implements JsonSerializable
 {
     use UrlHelpers;
 
-    /**
-     * @var Toxiproxy
-     */
-    private $toxiproxy;
-
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $listen;
-
-    /**
-     * @var string
-     */
-    private $upstream;
-
-    /**
-     * @var bool
-     */
-    private $enabled;
-
+    private Toxiproxy $toxiproxy;
+    private string $name;
+    private string $listen;
+    private string $upstream;
+    private bool $enabled;
     /**
      * @var Toxic[]
      */
-    private $toxics;
-
-    use ListenHelpers;
+    private array $toxics;
 
     /**
-     * Proxy constructor.
-     * @param Toxiproxy $toxiproxy
-     * @param string $name
-     * @param array $toxicContents
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     stream: string,
+     *     toxicity: float,
+     *     attributes: array<string, mixed>
+     * }[] $toxicContents
      */
-    public function __construct(Toxiproxy $toxiproxy, $name, array $toxicContents = [])
+    public function __construct(Toxiproxy $toxiproxy, string $name, array $toxicContents = [])
     {
         $this->toxiproxy = $toxiproxy;
         $this->name = $name;
-        $this->toxics = array_map(function ($toxicContent) {
-            return $this->contentsToToxic($toxicContent);
-        }, $toxicContents);
+        $this->toxics = array_map(
+            function ($toxicContent) {
+                return $this->contentsToToxic($toxicContent);
+            },
+            $toxicContents,
+        );
+        $this->enabled = false;
+        $this->upstream = '';
+        $this->listen = '';
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param $listen
-     * @return $this
-     */
-    public function setListen($listen)
+    public function setListen(string $listen): self
     {
         $this->listen = $listen;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getListen()
+    public function getListen(): string
     {
         return $this->listen;
     }
 
-    /**
-     * @return string
-     */
-    public function getUpstream()
+    public function getUpstream(): string
     {
         return $this->upstream;
     }
 
-    /**
-     * @param string $upstream
-     * @return $this
-     */
-    public function setUpstream($upstream)
+    public function setUpstream(string $upstream): self
     {
         $this->upstream = $upstream;
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
-    /**
-     * @param bool $enabled
-     * @return $this
-     */
-    public function setEnabled($enabled)
+    public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
         return $this;
@@ -124,55 +90,60 @@ class Proxy implements \JsonSerializable
     /**
      * @return Toxic[]
      */
-    public function getToxics()
+    public function getToxics(): array
     {
         return $this->toxics;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
-            "name" => $this->name,
-            "listen" => $this->listen,
-            "upstream" => $this->upstream,
-            "enabled" => $this->enabled
+            'name' => $this->name,
+            'listen' => $this->listen,
+            'upstream' => $this->upstream,
+            'enabled' => $this->enabled,
         ];
     }
 
-    /**
-     * @param ResponseInterface $response
-     * @return Toxic
-     */
-    private function responseToToxic(ResponseInterface $response)
+    private function responseToToxic(ResponseInterface $response): Toxic
     {
-        return $this->contentsToToxic(json_decode($response->getBody(), true));
+        /**
+         * @var array{
+         *     name: string,
+         *     type: string,
+         *     stream: string,
+         *     toxicity: float,
+         *     attributes: array<string, mixed>
+         * } $toxicContents
+         */
+        $toxicContents = (array) json_decode((string) $response->getBody(), true);
+        return $this->contentsToToxic($toxicContents);
     }
 
     /**
-     * @param array $contents
-     * @return Toxic
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     stream: string,
+     *     toxicity: float,
+     *     attributes: array<string, mixed>
+     * } $contents
      */
-    private function contentsToToxic(array $contents)
+    private function contentsToToxic(array $contents): Toxic
     {
         $toxic = new Toxic(
             $this,
-            $contents["name"],
-            $contents["type"],
-            $contents["stream"]
+            $contents['name'],
+            $contents['type'],
+            $contents['stream'],
         );
-        $toxic->setToxicity($contents["toxicity"])
-            ->setAttributes($contents["attributes"]);
+        $toxic->setToxicity($contents['toxicity'])
+            ->setAttributes($contents['attributes']);
 
         return $toxic;
     }
 
-    /**
-     * @return Client
-     */
-    private function getHttpClient()
+    private function getHttpClient(): Client
     {
         return $this->toxiproxy->getHttpClient();
     }
@@ -180,132 +151,153 @@ class Proxy implements \JsonSerializable
     /**
      * @return Toxic[]
      */
-    public function getAll()
+    public function getAll(): array
     {
         $route = $this->getToxicsRoute($this);
-        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        $response = $this->getHttpClient()->request((string) $route['method'], (string) $route['uri']);
         switch ($response->getStatusCode()) {
-            case StatusCodes::OK:
-                $body = json_decode($response->getBody(), true);
+            case StatusCodes::OK->value:
+                /**
+                 * @var array{
+                 *     name: string,
+                 *     type: string,
+                 *     stream: string,
+                 *     toxicity: float,
+                 *     attributes: array<string, mixed>
+                 * }[] $body
+                 */
+                $body = (array) json_decode((string) $response->getBody(), true);
 
-                return array_map(function ($contents) {
-                    return $this->contentsToToxic($contents);
-                }, array_values($body));
+                return array_map(
+                    function ($contents) {
+                        return $this->contentsToToxic($contents);
+                    },
+                    array_values($body),
+                );
             default:
-                throw new UnexpectedStatusCodeException(sprintf(
-                    "%s: %s",
-                    $response->getStatusCode(),
-                    $response->getBody()
-                ));
+                throw new UnexpectedStatusCodeException(
+                    sprintf(
+                        '%s: %s',
+                        $response->getStatusCode(),
+                        $response->getBody(),
+                    ),
+                );
         }
     }
 
     /**
-     * @param string $type
-     * @param string $stream
-     * @param string $toxicity
-     * @param array $attributes
-     * @param string|null $name
-     * @return Toxic
      * @throws ToxicExistsException|UnexpectedStatusCodeException
      */
-    public function create($type, $stream, $toxicity, $attributes, $name = null)
-    {
+    public function create(
+        string $type,
+        string $stream,
+        float $toxicity,
+        array $attributes,
+        ?string $name = null,
+    ): Toxic {
         $route = $this->createToxicRoute($this);
-        $response = $this->getHttpClient()->request($route["method"], $route["uri"], [
-            "body" => json_encode([
-                "name" => $name,
-                "stream" => $stream,
-                "type" => $type,
-                "toxicity" => $toxicity,
-                "attributes" => $attributes
-            ])
-        ]);
+        $response = $this->getHttpClient()->request(
+            (string) $route['method'],
+            (string) $route['uri'],
+            [
+            'body' => json_encode(
+                [
+                'name' => $name,
+                'stream' => $stream,
+                'type' => $type,
+                'toxicity' => $toxicity,
+                'attributes' => $attributes,
+                ],
+            ),
+            ],
+        );
         switch ($response->getStatusCode()) {
-            case StatusCodes::OK:
-            case StatusCodes::NO_CONTENT:
+            case StatusCodes::OK->value:
+            case StatusCodes::NO_CONTENT->value:
                 return $this->responseToToxic($response);
-            case StatusCodes::CONFLICT:
-                throw new ToxicExistsException($response->getBody());
+            case StatusCodes::CONFLICT->value:
+                throw new ToxicExistsException((string) $response->getBody());
             default:
-                throw new UnexpectedStatusCodeException(sprintf(
-                    "%s: %s",
-                    $response->getStatusCode(),
-                    $response->getBody()
-                ));
+                throw new UnexpectedStatusCodeException(
+                    sprintf(
+                        '%s: %s',
+                        $response->getStatusCode(),
+                        $response->getBody(),
+                    ),
+                );
         }
     }
 
     /**
-     * @param string $name
-     * @return Toxic|null
      * @throws UnexpectedStatusCodeException
      */
-    public function get($name)
+    public function get(string $name): ?Toxic
     {
         $route = $this->getToxicRoute($this, $name);
-        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        $response = $this->getHttpClient()->request((string) $route['method'], (string) $route['uri']);
         switch ($response->getStatusCode()) {
-            case StatusCodes::OK:
+            case StatusCodes::OK->value:
                 return $this->responseToToxic($response);
-            case StatusCodes::NOT_FOUND:
+            case StatusCodes::NOT_FOUND->value:
                 return null;
             default:
-                throw new UnexpectedStatusCodeException(sprintf(
-                    "%s: %s",
-                    $response->getStatusCode(),
-                    $response->getBody()
-                ));
+                throw new UnexpectedStatusCodeException(
+                    sprintf(
+                        '%s: %s',
+                        $response->getStatusCode(),
+                        $response->getBody(),
+                    ),
+                );
         }
     }
 
     /**
-     * @param Toxic $toxic
-     * @return Toxic
      * @throws NotFoundException|UnexpectedStatusCodeException
      */
-    public function update(Toxic $toxic)
+    public function update(Toxic $toxic): Toxic
     {
         $route = $this->updateToxicRoute($this, $toxic);
         $response = $this->getHttpClient()->request(
-            $route["method"],
-            $route["uri"],
-            ["body" => json_encode($toxic)]
+            (string) $route['method'],
+            (string) $route['uri'],
+            ['body' => json_encode($toxic)],
         );
         switch ($response->getStatusCode()) {
-            case StatusCodes::OK:
+            case StatusCodes::OK->value:
                 return $this->responseToToxic($response);
-            case StatusCodes::NOT_FOUND:
-                throw new NotFoundException($response->getBody());
+            case StatusCodes::NOT_FOUND->value:
+                throw new NotFoundException((string) $response->getBody());
             default:
-                throw new UnexpectedStatusCodeException(sprintf(
-                    "%s: %s",
-                    $response->getStatusCode(),
-                    $response->getBody()
-                ));
+                throw new UnexpectedStatusCodeException(
+                    sprintf(
+                        '%s: %s',
+                        $response->getStatusCode(),
+                        $response->getBody(),
+                    ),
+                );
         }
     }
 
     /**
-     * @param Toxic $toxic
-     * @return void
      * @throws NotFoundException|UnexpectedStatusCodeException
      */
-    public function delete(Toxic $toxic)
+    public function delete(Toxic $toxic): void
     {
         $route = $this->deleteToxicRoute($this, $toxic);
-        $response = $this->getHttpClient()->request($route["method"], $route["uri"]);
+        $response = $this->getHttpClient()->request((string) $route['method'], (string) $route['uri']);
         switch ($response->getStatusCode()) {
-            case StatusCodes::NO_CONTENT:
+            case StatusCodes::NO_CONTENT->value:
                 return;
-            case StatusCodes::NOT_FOUND:
-                throw new NotFoundException($response->getBody());
+            case StatusCodes::NOT_FOUND->value:
+                throw new NotFoundException((string) $response->getBody());
             default:
-                throw new UnexpectedStatusCodeException(sprintf(
-                    "%s: %s",
-                    $response->getStatusCode(),
-                    $response->getBody()
-                ));
+                throw new UnexpectedStatusCodeException(
+                    sprintf(
+                        '%s: %s',
+                        $response->getStatusCode(),
+                        $response->getBody(),
+                    ),
+                );
         }
     }
 }
