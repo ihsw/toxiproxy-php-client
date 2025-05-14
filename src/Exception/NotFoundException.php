@@ -1,8 +1,8 @@
 <?php
 
-namespace Ihsw\Toxiproxy\Exception;
+declare(strict_types=1);
 
-use Ihsw\Toxiproxy\Exception\Exception;
+namespace Ihsw\Toxiproxy\Exception;
 
 class NotFoundException extends Exception
 {

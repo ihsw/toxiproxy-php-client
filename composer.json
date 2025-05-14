@@ -19,7 +19,10 @@
     "guzzlehttp/guzzle": "^7.9"
   },
   "require-dev": {
+    "keboola/coding-standard": "^15.1",
     "phpunit/phpunit": "^12.1",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-phpunit": "^2.0",
     "squizlabs/php_codesniffer": "^3.12"
   },
   "autoload": {
@@ -29,12 +32,29 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Ihsw\\Toxiproxy\\Test\\": "tests"
+      "Ihsw\\Toxiproxy\\Tests\\": "tests"
     }
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit tests",
-    "lint": "./vendor/bin/phpcs --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./",
-    "fix-lint": "./vendor/bin/phpcbf --standard=PSR2 --ignore=*/vendor/*,*/_reports/*,*/_docs/*,*/examples/vendor/* ./"
+    "ci": [
+      "@composer validate --no-check-publish --no-check-all",
+      "@phpcs",
+      "@phpstan",
+      "@phpunit"
+    ],
+    "phpcs": "phpcs -n --ignore=vendor,cache,Kernel.php --extensions=php .",
+    "phpcbf": "phpcbf --extensions=php src tests examples",
+    "phpstan": "phpstan analyse --no-progress -c phpstan.neon",
+    "phpunit": [
+      "@putenv XDEBUG_MODE=coverage",
+      "phpunit --coverage-clover /tmp/build-logs/clover.xml --coverage-xml=/tmp/build-logs/coverage-xml --log-junit=/tmp/build-logs/phpunit.junit.xml"
+    ]
+  },
+  "config": {
+    "lock": false,
+    "sort-packages": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

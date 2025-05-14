@@ -1,6 +1,8 @@
 <?php
 
-namespace Ihsw\Toxiproxy\Test\Test;
+declare(strict_types=1);
+
+namespace Ihsw\Toxiproxy\Tests\Test;
 
 use Ihsw\Toxiproxy\Proxy;
 use Ihsw\Toxiproxy\StreamDirections;
@@ -24,10 +26,13 @@ abstract class BaseTestCase extends TestCase
         }
     }
 
+    /**
+     * @param array<int,mixed>|null $mockResponses
+     */
     protected function createToxiproxy(?array $mockResponses = null): Toxiproxy
     {
         if ($mockResponses === null) {
-            return new Toxiproxy(sprintf('http://%s:8474', $this->getToxiproxyHost()));
+            return new Toxiproxy(sprintf('http://%s:%s', $this->getToxiproxyHost(), $this->getToxiproxyPort()));
         }
 
         $toxiproxy = new Toxiproxy('');
@@ -40,16 +45,21 @@ abstract class BaseTestCase extends TestCase
         return (string) getenv('TOXIPROXY_HOST');
     }
 
+    private function getToxiproxyPort(): string
+    {
+        return (string) getenv('TOXIPROXY_PORT');
+    }
+
+
     protected function getListen(int $listen = 34343): string
     {
         return sprintf('%s:%s', '127.0.0.1', $listen);
     }
 
-    protected function createProxy(Toxiproxy $toxiproxy): ?Proxy
+    protected function createProxy(Toxiproxy $toxiproxy): Proxy
     {
         return $toxiproxy->create(self::PROXY_NAME, self::TEST_UPSTREAM, $this->getListen());
     }
-
 
     protected function createToxic(Proxy $proxy, string $type, array $attr): Toxic
     {
