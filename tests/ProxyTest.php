@@ -234,4 +234,20 @@ class ProxyTest extends BaseTestCase
         $proxy = new Proxy($toxiproxy, '');
         $proxy->delete(new Toxic($proxy, '', '', ''));
     }
+
+    public function testGetListenIp(): void
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $listenIp = $proxy->getListenIp();
+        self::assertNotEmpty($listenIp);
+    }
+
+    public function testGetListenPort(): void
+    {
+        $toxiproxy = $this->createToxiproxy();
+        $proxy = $this->createProxy($toxiproxy);
+        $listenPort = $proxy->getListenPort();
+        self::assertNotEmpty($listenPort);
+    }
 }
